@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tyj.jhpt.dao.SupersMapper">
+  <resultMap id="BaseResultMap" type="com.tyj.jhpt.bo.Supers">
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="car_vin" property="carVin" jdbcType="VARCHAR" />
+    <result column="event_time" property="eventTime" jdbcType="TIMESTAMP" />
+    <result column="max_system_no" property="maxSystemNo" jdbcType="INTEGER" />
+    <result column="max_simple_no" property="maxSimpleNo" jdbcType="INTEGER" />
+    <result column="max" property="max" jdbcType="INTEGER" />
+    <result column="mix_system_no" property="mixSystemNo" jdbcType="INTEGER" />
+    <result column="mix_simple_no" property="mixSimpleNo" jdbcType="INTEGER" />
+    <result column="min" property="min" jdbcType="INTEGER" />
+    <result column="max_temperature_system_no" property="maxTemperatureSystemNo" jdbcType="INTEGER" />
+    <result column="max_seq" property="maxSeq" jdbcType="INTEGER" />
+    <result column="max_temperature" property="maxTemperature" jdbcType="INTEGER" />
+    <result column="min_temperature_system_no" property="minTemperatureSystemNo" jdbcType="INTEGER" />
+    <result column="min_seq" property="minSeq" jdbcType="INTEGER" />
+    <result column="min_temperature" property="minTemperature" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    `id`, `car_vin`, `event_time`, `max_system_no`, `max_simple_no`, `max`, `mix_system_no`, `mix_simple_no`, `min`, `max_temperature_system_no`, 
+    `max_seq`, `max_temperature`, `min_temperature_system_no`, `min_seq`, `min_temperature`
+  </sql>
+  <insert id="insert" parameterType="com.tyj.jhpt.bo.Supers" useGeneratedKeys="true" keyProperty="id">
+    <![CDATA[
+    insert into `tb_supers` (`car_vin`, `event_time`, `max_system_no`, 
+      `max_simple_no`, `max`, `mix_system_no`, 
+      `mix_simple_no`, `min`, `max_temperature_system_no`, 
+      `max_seq`, `max_temperature`, `min_temperature_system_no`, 
+      `min_seq`, `min_temperature`)
+    values (#{carVin,jdbcType=VARCHAR}, #{eventTime,jdbcType=TIMESTAMP}, #{maxSystemNo,jdbcType=INTEGER}, 
+      #{maxSimpleNo,jdbcType=INTEGER}, #{max,jdbcType=INTEGER}, #{mixSystemNo,jdbcType=INTEGER}, 
+      #{mixSimpleNo,jdbcType=INTEGER}, #{min,jdbcType=INTEGER}, #{maxTemperatureSystemNo,jdbcType=INTEGER}, 
+      #{maxSeq,jdbcType=INTEGER}, #{maxTemperature,jdbcType=INTEGER}, #{minTemperatureSystemNo,jdbcType=INTEGER}, 
+      #{minSeq,jdbcType=INTEGER}, #{minTemperature,jdbcType=INTEGER})
+    ]]>
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List">
+    insert into `tb_supers` (`car_vin`, `event_time`, `max_system_no`, 
+      `max_simple_no`, `max`, `mix_system_no`, 
+      `mix_simple_no`, `min`, `max_temperature_system_no`, 
+      `max_seq`, `max_temperature`, `min_temperature_system_no`, 
+      `min_seq`, `min_temperature`)
+     values 
+    <foreach collection="list" item="item" index="index" separator=",">
+       (#{item.carVin,jdbcType=VARCHAR}, #{item.eventTime,jdbcType=TIMESTAMP}, #{item.maxSystemNo,jdbcType=INTEGER}, 
+        #{item.maxSimpleNo,jdbcType=INTEGER}, #{item.max,jdbcType=INTEGER}, #{item.mixSystemNo,jdbcType=INTEGER}, 
+        #{item.mixSimpleNo,jdbcType=INTEGER}, #{item.min,jdbcType=INTEGER}, #{item.maxTemperatureSystemNo,jdbcType=INTEGER}, 
+        #{item.maxSeq,jdbcType=INTEGER}, #{item.maxTemperature,jdbcType=INTEGER}, #{item.minTemperatureSystemNo,jdbcType=INTEGER}, 
+        #{item.minSeq,jdbcType=INTEGER}, #{item.minTemperature,jdbcType=INTEGER})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.tyj.jhpt.bo.Supers" useGeneratedKeys="true" keyProperty="id">
+    insert into `tb_supers`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="carVin != null">
+        `car_vin`,
+      </if>
+      <if test="eventTime != null">
+        `event_time`,
+      </if>
+      <if test="maxSystemNo != null">
+        `max_system_no`,
+      </if>
+      <if test="maxSimpleNo != null">
+        `max_simple_no`,
+      </if>
+      <if test="max != null">
+        `max`,
+      </if>
+      <if test="mixSystemNo != null">
+        `mix_system_no`,
+      </if>
+      <if test="mixSimpleNo != null">
+        `mix_simple_no`,
+      </if>
+      <if test="min != null">
+        `min`,
+      </if>
+      <if test="maxTemperatureSystemNo != null">
+        `max_temperature_system_no`,
+      </if>
+      <if test="maxSeq != null">
+        `max_seq`,
+      </if>
+      <if test="maxTemperature != null">
+        `max_temperature`,
+      </if>
+      <if test="minTemperatureSystemNo != null">
+        `min_temperature_system_no`,
+      </if>
+      <if test="minSeq != null">
+        `min_seq`,
+      </if>
+      <if test="minTemperature != null">
+        `min_temperature`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="carVin != null">
+        #{carVin,jdbcType=VARCHAR},
+      </if>
+      <if test="eventTime != null">
+        #{eventTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="maxSystemNo != null">
+        #{maxSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="maxSimpleNo != null">
+        #{maxSimpleNo,jdbcType=INTEGER},
+      </if>
+      <if test="max != null">
+        #{max,jdbcType=INTEGER},
+      </if>
+      <if test="mixSystemNo != null">
+        #{mixSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="mixSimpleNo != null">
+        #{mixSimpleNo,jdbcType=INTEGER},
+      </if>
+      <if test="min != null">
+        #{min,jdbcType=INTEGER},
+      </if>
+      <if test="maxTemperatureSystemNo != null">
+        #{maxTemperatureSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="maxSeq != null">
+        #{maxSeq,jdbcType=INTEGER},
+      </if>
+      <if test="maxTemperature != null">
+        #{maxTemperature,jdbcType=INTEGER},
+      </if>
+      <if test="minTemperatureSystemNo != null">
+        #{minTemperatureSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="minSeq != null">
+        #{minSeq,jdbcType=INTEGER},
+      </if>
+      <if test="minTemperature != null">
+        #{minTemperature,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from `tb_supers`
+    where `id` = #{id,jdbcType=BIGINT}
+  </delete>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from `tb_supers`
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from `tb_supers`
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tyj.jhpt.bo.Supers">
+    update `tb_supers`
+    <set>
+      <if test="carVin != null">
+        `car_vin` = #{carVin,jdbcType=VARCHAR},
+      </if>
+      <if test="eventTime != null">
+        `event_time` = #{eventTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="maxSystemNo != null">
+        `max_system_no` = #{maxSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="maxSimpleNo != null">
+        `max_simple_no` = #{maxSimpleNo,jdbcType=INTEGER},
+      </if>
+      <if test="max != null">
+        `max` = #{max,jdbcType=INTEGER},
+      </if>
+      <if test="mixSystemNo != null">
+        `mix_system_no` = #{mixSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="mixSimpleNo != null">
+        `mix_simple_no` = #{mixSimpleNo,jdbcType=INTEGER},
+      </if>
+      <if test="min != null">
+        `min` = #{min,jdbcType=INTEGER},
+      </if>
+      <if test="maxTemperatureSystemNo != null">
+        `max_temperature_system_no` = #{maxTemperatureSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="maxSeq != null">
+        `max_seq` = #{maxSeq,jdbcType=INTEGER},
+      </if>
+      <if test="maxTemperature != null">
+        `max_temperature` = #{maxTemperature,jdbcType=INTEGER},
+      </if>
+      <if test="minTemperatureSystemNo != null">
+        `min_temperature_system_no` = #{minTemperatureSystemNo,jdbcType=INTEGER},
+      </if>
+      <if test="minSeq != null">
+        `min_seq` = #{minSeq,jdbcType=INTEGER},
+      </if>
+      <if test="minTemperature != null">
+        `min_temperature` = #{minTemperature,jdbcType=INTEGER},
+      </if>
+    </set>
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tyj.jhpt.bo.Supers">
+    update `tb_supers`
+    set `car_vin` = #{carVin,jdbcType=VARCHAR},
+      `event_time` = #{eventTime,jdbcType=TIMESTAMP},
+      `max_system_no` = #{maxSystemNo,jdbcType=INTEGER},
+      `max_simple_no` = #{maxSimpleNo,jdbcType=INTEGER},
+      `max` = #{max,jdbcType=INTEGER},
+      `mix_system_no` = #{mixSystemNo,jdbcType=INTEGER},
+      `mix_simple_no` = #{mixSimpleNo,jdbcType=INTEGER},
+      `min` = #{min,jdbcType=INTEGER},
+      `max_temperature_system_no` = #{maxTemperatureSystemNo,jdbcType=INTEGER},
+      `max_seq` = #{maxSeq,jdbcType=INTEGER},
+      `max_temperature` = #{maxTemperature,jdbcType=INTEGER},
+      `min_temperature_system_no` = #{minTemperatureSystemNo,jdbcType=INTEGER},
+      `min_seq` = #{minSeq,jdbcType=INTEGER},
+      `min_temperature` = #{minTemperature,jdbcType=INTEGER}
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

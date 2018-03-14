@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tyj.jhpt.dao.QudongDianjiDetailMapper">
+  <resultMap id="BaseResultMap" type="com.tyj.jhpt.bo.QudongDianjiDetail">
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="seq" property="seq" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="control_temperature" property="controlTemperature" jdbcType="INTEGER" />
+    <result column="speed" property="speed" jdbcType="INTEGER" />
+    <result column="zhuanju" property="zhuanju" jdbcType="INTEGER" />
+    <result column="temperature" property="temperature" jdbcType="INTEGER" />
+    <result column="dianya" property="dianya" jdbcType="INTEGER" />
+    <result column="dianliu" property="dianliu" jdbcType="INTEGER" />
+    <result column="qudong_dianji_id" property="qudongDianjiId" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    `id`, `seq`, `status`, `control_temperature`, `speed`, `zhuanju`, `temperature`, `dianya`, `dianliu`, `qudong_dianji_id`
+  </sql>
+  <insert id="insert" parameterType="com.tyj.jhpt.bo.QudongDianjiDetail" useGeneratedKeys="true" keyProperty="id">
+    <![CDATA[
+    insert into `tb_qudong_dianji_detail` (`seq`, `status`, `control_temperature`, 
+      `speed`, `zhuanju`, `temperature`, 
+      `dianya`, `dianliu`, `qudong_dianji_id`
+      )
+    values (#{seq,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{controlTemperature,jdbcType=INTEGER}, 
+      #{speed,jdbcType=INTEGER}, #{zhuanju,jdbcType=INTEGER}, #{temperature,jdbcType=INTEGER}, 
+      #{dianya,jdbcType=INTEGER}, #{dianliu,jdbcType=INTEGER}, #{qudongDianjiId,jdbcType=BIGINT}
+      )
+    ]]>
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List">
+    insert into `tb_qudong_dianji_detail` (`seq`, `status`, `control_temperature`, 
+      `speed`, `zhuanju`, `temperature`, 
+      `dianya`, `dianliu`, `qudong_dianji_id`
+      )
+     values 
+    <foreach collection="list" item="item" index="index" separator=",">
+       (#{item.seq,jdbcType=INTEGER}, #{item.status,jdbcType=INTEGER}, #{item.controlTemperature,jdbcType=INTEGER}, 
+        #{item.speed,jdbcType=INTEGER}, #{item.zhuanju,jdbcType=INTEGER}, #{item.temperature,jdbcType=INTEGER}, 
+        #{item.dianya,jdbcType=INTEGER}, #{item.dianliu,jdbcType=INTEGER}, #{item.qudongDianjiId,jdbcType=BIGINT}
+        )
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.tyj.jhpt.bo.QudongDianjiDetail" useGeneratedKeys="true" keyProperty="id">
+    insert into `tb_qudong_dianji_detail`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="seq != null">
+        `seq`,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="controlTemperature != null">
+        `control_temperature`,
+      </if>
+      <if test="speed != null">
+        `speed`,
+      </if>
+      <if test="zhuanju != null">
+        `zhuanju`,
+      </if>
+      <if test="temperature != null">
+        `temperature`,
+      </if>
+      <if test="dianya != null">
+        `dianya`,
+      </if>
+      <if test="dianliu != null">
+        `dianliu`,
+      </if>
+      <if test="qudongDianjiId != null">
+        `qudong_dianji_id`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="seq != null">
+        #{seq,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="controlTemperature != null">
+        #{controlTemperature,jdbcType=INTEGER},
+      </if>
+      <if test="speed != null">
+        #{speed,jdbcType=INTEGER},
+      </if>
+      <if test="zhuanju != null">
+        #{zhuanju,jdbcType=INTEGER},
+      </if>
+      <if test="temperature != null">
+        #{temperature,jdbcType=INTEGER},
+      </if>
+      <if test="dianya != null">
+        #{dianya,jdbcType=INTEGER},
+      </if>
+      <if test="dianliu != null">
+        #{dianliu,jdbcType=INTEGER},
+      </if>
+      <if test="qudongDianjiId != null">
+        #{qudongDianjiId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from `tb_qudong_dianji_detail`
+    where `id` = #{id,jdbcType=BIGINT}
+  </delete>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from `tb_qudong_dianji_detail`
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from `tb_qudong_dianji_detail`
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tyj.jhpt.bo.QudongDianjiDetail">
+    update `tb_qudong_dianji_detail`
+    <set>
+      <if test="seq != null">
+        `seq` = #{seq,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="controlTemperature != null">
+        `control_temperature` = #{controlTemperature,jdbcType=INTEGER},
+      </if>
+      <if test="speed != null">
+        `speed` = #{speed,jdbcType=INTEGER},
+      </if>
+      <if test="zhuanju != null">
+        `zhuanju` = #{zhuanju,jdbcType=INTEGER},
+      </if>
+      <if test="temperature != null">
+        `temperature` = #{temperature,jdbcType=INTEGER},
+      </if>
+      <if test="dianya != null">
+        `dianya` = #{dianya,jdbcType=INTEGER},
+      </if>
+      <if test="dianliu != null">
+        `dianliu` = #{dianliu,jdbcType=INTEGER},
+      </if>
+      <if test="qudongDianjiId != null">
+        `qudong_dianji_id` = #{qudongDianjiId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tyj.jhpt.bo.QudongDianjiDetail">
+    update `tb_qudong_dianji_detail`
+    set `seq` = #{seq,jdbcType=INTEGER},
+      `status` = #{status,jdbcType=INTEGER},
+      `control_temperature` = #{controlTemperature,jdbcType=INTEGER},
+      `speed` = #{speed,jdbcType=INTEGER},
+      `zhuanju` = #{zhuanju,jdbcType=INTEGER},
+      `temperature` = #{temperature,jdbcType=INTEGER},
+      `dianya` = #{dianya,jdbcType=INTEGER},
+      `dianliu` = #{dianliu,jdbcType=INTEGER},
+      `qudong_dianji_id` = #{qudongDianjiId,jdbcType=BIGINT}
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+
+    <title></title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_table.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap_table.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div class="content">
+    <h4 class="sub-header">节点列表</h4>
+    <div class="tool-bar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" onclick="addNode()">新增节点</button>
+        </div>
+    </div>
+    <div id="node-list" class="mt10"></div>
+</div>
+
+<div id="dlg-add-profile" style="display: none">
+    <input type="hidden" class="form-control" id="id" name="id">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2"><label for="name" class="control-label wp100">名称<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="name" placeholder="请正确填写节点名称" name="name">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"><label for="ip" class="control-label wp100">ip <span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="ip" placeholder="节点ip" name="ip">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"><label for="user" class="control-label wp100">用户名<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="user" placeholder="请正确填写节点对应用户名" name="user">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"><label for="password" class="control-label wp100">密码<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="password" placeholder="请正确填写节点对应密码" name="password">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-2"><label for="dir" class="control-label wp100">工作目录<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="dir" name="dir">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dlg-ret" style="display:none;">
+
+</div>
+
+<script type="text/html" id="node-tpl">
+    <table class="table table-bordered" id="node-table">
+        <thead>
+        <tr>
+            <th><label><input type="checkbox" onchange="checkAll(this)"></label></th>
+            <th>节点名称</th>
+            <th>节点ip</th>
+            <th>节点工作目录</th>
+            <th>节点用户名</th>
+            <th>节点密码</th>
+            <th>节点状态</th>
+            <th>节点创建时间</th>
+            <th>节点更新时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each data as it}}
+        <tr>
+            <td><label><input type="checkbox" class="chks" data-node="{{it.ip}}" value="{{it.id}}"></label></td>
+            <td>{{it.name}}</td>
+            <td>{{it.ip}}</td>
+            <td>{{it.dir}}</td>
+            <td>{{it.user}}</td>
+            <td>{{it.password}}</td>
+            <td>{{if it.settingState=='active'}}<span class="label label-success">active</span>{{else}}<span class="label label-danger">inactive</span>{{/if}}</td>
+            <td>{{it.createTime}}</td>
+            <td>{{it.updateTime}}</td>
+            <td>
+                <a href="#;" onclick="updateNode('{{it.id}}')">编辑</a> ｜
+                <a href="#;" onclick="delNode('{{it.id}}')">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td class="tpage" colspan="10"></td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+
+<script>
+
+    getNodeList();
+
+   /* var gData = {};
+
+    gData.$name = $('#name');
+    gData.$user = $('#user');
+    gData.$password = $('#password');
+    gData.$dir = $('#dir');
+    gData.$ip = $('#ip');
+    gData.ip = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+*/
+    $('#enable-set').change(function () {
+        if(this.checked){
+            $(this).parents('.col-sm-10').find('.form-control').removeAttr('disabled');
+        }else{
+            $(this).parents('.col-sm-10').find('.form-control').attr('disabled','disabled');
+        }
+    });
+
+    var $table = $('#obj-table'),tr,lines = 0;
+    $table.on('click','.btn-success',function () {
+        if(lines<9){
+            $tr = $(this).parents('tr').clone();
+            $tr.find('.btn-success').attr('class','btn btn-danger btn-xs').find('.glyphicon').attr('class','glyphicon glyphicon-minus');
+            $tr.find('.port-type').attr('name','port-type-'+lines);
+            $tr.find('.protocol').attr('name','protocol-'+lines);
+            $table.find('tbody').append($tr);
+            lines++;
+        }
+    });
+    $table.on('click','.btn-danger',function () {
+        if(lines>0){
+            $(this).parents('tr').remove();
+            lines--;
+        }
+    });
+    $table.on('keydown','.obj-name',function(e){
+        if((e.keyCode<65 || e.keyCode>90) && (e.keyCode!=8 && e.keyCode!=46)){
+            return false;
+        }
+    });
+    $table.on('keydown','.num-control',function (e) {
+        if(!(e.keyCode>47 && e.keyCode<59) && !(e.keyCode>95 && e.keyCode<106) && e.keyCode!=8 && e.keyCode!=46){
+            return false;
+        }
+    });
+    $table.on('blur','.port',function () {
+        if(this.value>65535 || this.value<0){
+            this.value = '';
+            showErrorMsg($('#dlg-add-profile'),'端口范围0~65535，您的输入超出了范围');
+        }
+    });
+    $('#ip').keyup(function () {
+        $('.bind-ip').val($.trim($(this).val()));
+    });
+    $('#name,#user,#password,#dir,#ip').blur(function () {
+        var name = $.trim($('#name').val()),
+            user = $.trim($('#user').val()),
+            password = $.trim($('#password').val()),
+            dir = $.trim($('#dir').val()),
+            ip   = $.trim($('#ip').val());
+//        checkServerExist(name,user,password,dir,ip);
+    });
+
+    function getNodeList() {
+        $.ajax({
+            type: 'POST',
+            url: '/node/queryNodeList',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+        }).done(function (data) {
+            closeErrorMsg();
+            if (data.status == 0) {
+                var htmlStr = template('node-tpl', data);
+                $('#node-list').html(htmlStr);
+                $('#node-table').table();
+            } else {
+                showErrorMsg($('body'), data.statusInfo);
+            }
+        })
+    }
+
+    function addNode() {
+        var $box = $('#dlg-add-profile');
+        closeErrorMsg();
+        $box.find('#id').val('');
+        $box.find('#name').val('');
+        $box.find('#ip').val('');
+        $box.find('#user').val('');
+        $box.find('#password').val('');
+        $box.find('#dir').val('');
+        showDialog($box,'新增节点',{
+            '取消':function () {
+                this.modal('hide');
+            },
+            '确定':function () {
+                var paramObj = {
+                    name     :   $.trim($('#name').val()),
+                    user     :   $.trim($('#user').val()),
+                    password     :   $.trim($('#password').val()),
+                    ip       :   $.trim($('#ip').val()),
+                    dir       :   $.trim($('#dir').val()),
+                    adapters        :   []
+                },self = this;
+                closeErrorMsg();
+                if(!paramObj.name){
+                    showErrorMsg($box,'名称不能为空');
+                    return;
+                }
+                if(!paramObj.user){
+                    showErrorMsg($box,'用户名不能为空');
+                    return;
+                }
+                if(!paramObj.password){
+                    showErrorMsg($box,'密码不能为空');
+                    return;
+                }
+                if(!/^[a-zA-Z]([a-zA-Z0-9])+$/g.test(paramObj.password)){
+                    showErrorMsg($box,'密码只能包含英文字母，数字，并以字母开头');
+                    return;
+                }
+                if(!paramObj.ip){
+                    showErrorMsg($box,'ip不能为空');
+                    return;
+                }
+                if(!paramObj.dir){
+                    showErrorMsg($box,'工作目录不能为空');
+                    return;
+                }
+                if(!/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(paramObj.ip)){
+                    showErrorMsg($box,'格式不正确，请输入正确的IP地址');
+                    return;
+                }
+                var $controls = $('#obj-table').find('.form-control'),len = $controls.length,flag=0;
+                for(var i=0;i<len;i++){
+                    if($controls[i].value==''){
+                        flag=1;
+                    }
+                }
+                if(flag==1){
+                    showErrorMsg($box,'所有必填项都必须填写!');
+                    return;
+                }
+                $.each($('#obj-table').find('tbody').find('tr'),function () {
+                    var tmp = {
+                        obj_name : $.trim($(this).find('.obj-name').val()),
+                        bind_ip : $.trim($(this).find('.bind-ip').val()),
+                        port : $.trim($(this).find('.port').val()),
+                        port_type: $.trim($(this).find('.port-type:checked').val()),
+                        protocol: $.trim($(this).find('.protocol:checked').val()),
+                        thread_num : $(this).find('.thread-num').val(),
+                        max_connections : $(this).find('.max-connections').val(),
+                        queuecap : $(this).find('.queuecap').val(),
+                        queuetimeout : $(this).find('.queuetimeout').val()
+                    };
+                    paramObj.adapters.push(tmp);
+                });
+                var param = $.stringify(paramObj);
+
+                showLoading();
+                $.ajax('/node/addNode',{
+                    contentType:'application/json',
+                    method:'post',
+                    data:param,
+                    dataType:'json',
+                    success:function (data) {
+                        removeLoading();
+                        if(data.status==0){
+                            self.modal('hide');
+                            getNodeList();
+                        }else{
+                            showErrorMsg($box, data.statusInfo);
+                        }
+                    }
+                });
+            }
+        },700);
+    }
+
+    function updateNode(id) {
+        var $box = $('#dlg-add-profile');
+        $box.find('#id').val(id);
+        $.getJSON('/node/selectById?id='+id,function (data) {
+            if (data.status == 0) {
+                $box.find('#name').val(data.data.name);
+                $box.find('#ip').val(data.data.ip);
+                $box.find('#user').val(data.data.user);
+                $box.find('#password').val(data.data.password);
+                $box.find('#dir').val(data.data.dir);
+            }
+        });
+        showDialog($box,'修改节点',{
+            '取消':function () {
+                this.modal('hide');
+            },
+            '确定':function () {
+                var paramObj = {
+                    id: $.trim($('#id').val()),
+                    name: $.trim($('#name').val()),
+                    user: $.trim($('#user').val()),
+                    password: $.trim($('#password').val()),
+                    ip: $.trim($('#ip').val()),
+                    dir: $.trim($('#dir').val()),
+                    adapters: []
+                }, self = this;
+                closeErrorMsg();
+                if (!paramObj.name) {
+                    showErrorMsg($box, '名称不能为空');
+                    return;
+                }
+                if (!paramObj.user) {
+                    showErrorMsg($box, '用户名不能为空');
+                    return;
+                }
+                if (!paramObj.password) {
+                    showErrorMsg($box, '密码不能为空');
+                    return;
+                }
+                if (!/^[a-zA-Z]([a-zA-Z0-9])+$/g.test(paramObj.password)) {
+                    showErrorMsg($box, '密码只能包含英文字母，数字，并以字母开头');
+                    return;
+                }
+                if (!paramObj.ip) {
+                    showErrorMsg($box, 'ip不能为空');
+                    return;
+                }
+                if (!paramObj.dir) {
+                    showErrorMsg($box, '工作目录不能为空');
+                    return;
+                }
+                if (!/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(paramObj.ip)) {
+                    showErrorMsg($box, '格式不正确，请输入正确的IP地址');
+                    return;
+                }
+                var $controls = $('#obj-table').find('.form-control'), len = $controls.length, flag = 0;
+                for (var i = 0; i < len; i++) {
+                    if ($controls[i].value == '') {
+                        flag = 1;
+                    }
+                }
+                if (flag == 1) {
+                    showErrorMsg($box, '所有必填项都必须填写!');
+                    return;
+                }
+                $.each($('#obj-table').find('tbody').find('tr'), function () {
+                    var tmp = {
+                        obj_name: $.trim($(this).find('.obj-name').val()),
+                        bind_ip: $.trim($(this).find('.bind-ip').val()),
+                        port: $.trim($(this).find('.port').val()),
+                        port_type: $.trim($(this).find('.port-type:checked').val()),
+                        protocol: $.trim($(this).find('.protocol:checked').val()),
+                        thread_num: $(this).find('.thread-num').val(),
+                        max_connections: $(this).find('.max-connections').val(),
+                        queuecap: $(this).find('.queuecap').val(),
+                        queuetimeout: $(this).find('.queuetimeout').val()
+                    };
+                    paramObj.adapters.push(tmp);
+                });
+                var param = $.stringify(paramObj);
+
+                showLoading();
+                $.ajax('/node/modifyNode', {
+                    contentType: 'application/json',
+                    method: 'post',
+                    data: param,
+                    dataType: 'json',
+                    success: function (data) {
+                        removeLoading();
+                        if (data.status == 0) {
+                            self.modal('hide');
+                            getNodeList();
+                        } else {
+                            showErrorMsg($box, data.statusInfo);
+                        }
+                    }
+                });
+            }
+        },700);
+    }
+
+    function delNode(id) {
+        var $box = $('#dlg-ret');
+        $box.html('您确定要删除这个节点吗？');
+        showDialog($box,'删除节点',{
+            '取消':function () {
+                this.modal('hide');
+            },
+            '删除':function () {
+                var self = this;
+                showLoading();
+                $.getJSON('/node/deleteNode?id='+id,function (data) {
+                    removeLoading();
+                    if(data.status==0){
+                        self.modal('hide');
+                        getNodeList();
+                    }else{
+                        showErrorMsg($box,'模板删除出错');
+                    }
+                });
+            }
+        },600,50);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div class="content">
+    <h4 class="sub-header">模板管理</h4>
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-1"><label class="tr wp100 control-label">模板名 </label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control date" id="template-name">
+            </div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary" id="btn-submit">查询</button></div>
+        </div>
+    </div>
+    <div class="tool-bar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" onclick="addNewProfile()">新增模板</button>
+        </div>
+    </div>
+    <div id="template-list" class="mt10"></div>
+</div>
+
+
+<div id="dlg-ret" style="display:none;">
+
+</div>
+
+<div id="dlg-view" style="display:none;">
+
+</div>
+
+<div id="dlg-add-profile" style="display: none">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2"><label class="tr wp100 control-label">模板名<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-template-name" placeholder="模板名只能包含英文字母，数字，并以字母开头">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"><label class="tr wp100 control-label">模板内容<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <textarea name="" id="a-profile" class="form-control" rows="10"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="template-tpl">
+    <table class="table table-bordered" id="template-table">
+        <thead>
+        <tr>
+            <th>模板名</th>
+            <th>上次更新时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each data.list as it}}
+            <tr>
+                <td>{{it.templateName}}</td>
+                <td>{{it.updateTime}}</td>
+                <td>
+                    <a href="#;" onclick="viewTemplate('{{it.templateName}}')">查看</a> ｜
+                    <a href="#;" onclick="updateTemplate('{{it.templateName}}')">编辑</a> ｜
+                    <a href="#;" onclick="delTemplate('{{it.templateName}}')">删除</a>
+                </td>
+            </tr>
+        {{/each}}
+        </tbody>
+        <tfoot>
+            <tr><td class="tpage" colspan="5"></td></tr>
+        </tfoot>
+    </table>
+</script>
+
+
+
+
+<script>
+    getTemplateList('%');
+
+    $('#btn-submit').click(function () {
+        var tmpName = $.trim($('#template-name').val());
+        getTemplateList(tmpName);
+    });
+
+
+    /**
+     * 获取模板列表
+     * @param {String} template_name    模板名称
+     */
+    function getTemplateList(template_name) {
+        showLoading();
+        var paramObj = {
+        		templateName   :   template_name || '%',
+            };
+        $.getJSON('/template/getTemplateByPage',paramObj,function (data) {
+            removeLoading();
+            
+            if(data.status==0){
+                var htmlStr = template('template-tpl',data);
+                $('#template-list').html(htmlStr);
+                $('#template-table').table();
+            }else{
+                $('#template-list').html('<div class="alert alert-danger">没有数据</div>');
+            }
+        });
+    }
+
+    /**
+     * 查看模板内容
+     * @param {String} templateName     查看模板内容
+     */
+    function viewTemplate(templateName) {
+        var $box = $('#dlg-view');
+        $.getJSON('/template/getTemplateContent?templateName='+templateName,function (data) {
+            if(data.status==0){
+                $box.html('<pre>'+data.data.templateContent.replace(/\>/g,'&gt;').replace(/\</g,'&lt;')+'</pre>');
+            }else{
+                $box.html('<div class="alert alert-danger">没有数据</div>');
+            }
+            showDialog($box,'查看模板',null,800,400);
+        });
+    }
+
+    /**
+     * 新增模板
+     */
+    function addNewProfile() {
+        var $box = $('#dlg-add-profile');
+        $box.find('#a-template-name').val('');
+        $box.find('#a-profile').val('').html('');
+/*         getTemplate(function (data) {
+            $box.find('#a-parents').html(data);
+        }); */
+        showDialog($box,'新增模板',{
+            '取消':function () {
+                this.modal('hide');
+            },
+            '确定':function () {
+                var paramObj = {
+                    templateName   :   $.trim($('#a-template-name').val()),
+                    templateContent         :   $.trim($('#a-profile').val())
+                },self = this;
+                closeErrorMsg();
+                if(!paramObj.templateName){
+                    showErrorMsg($box,'请填写模板名称');
+                    return;
+                }
+                if(!/^[a-zA-Z]([a-zA-Z0-9])+$/g.test(paramObj.templateName)){
+                    showErrorMsg($box,'模板名只能包含英文字母，数字，并以字母开头');
+                    return;
+                }
+                if(!paramObj.templateContent){
+                    showErrorMsg($box,'请填写模板内容');
+                    return;
+                }
+                $.ajaxSetup({
+                    contentType : 'application/json'
+                });
+                var param = $.stringify(paramObj);
+                $.post('/template/addOrUpdate',param,function (data) {
+                    if(data.status==0){
+                        self.modal('hide');
+                        $('#btn-submit').click();
+                    }else{
+                        showErrorMsg($box,'模板新增出错');
+                    }
+                },'json');
+            }
+        },700);
+    }
+
+
+    function updateTemplate(templateName) {
+    	
+         var $box = $('#dlg-add-profile');
+        $box.find('#a-template-name').val(templateName);
+/*         getTemplate(function (data) {
+            $box.find('#a-parents').html(data).val(parents_name);
+        });  */
+        $.getJSON('/template/getTemplateContent?templateName='+templateName,function (data) {
+            if(data.status==0){
+                $box.find('#a-profile').val(data.data.templateContent);
+            }
+        });
+        showDialog($box,'修改模板',{
+            '取消':function () {
+                this.modal('hide');
+            },
+            '确定':function () {
+                var paramObj = {
+                    templateName   :   $.trim($('#a-template-name').val()),
+                    templateContent         :   $.trim($('#a-profile').val())
+                },self = this;
+                closeErrorMsg();
+                if(!paramObj.templateName){
+                    showErrorMsg($box,'请填写模板名称');
+                    return;
+                }
+                if(!paramObj.templateContent){
+                    showErrorMsg($box,'请填写模板内容');
+                    return;
+                }
+                $.ajaxSetup({
+                    contentType : 'application/json'
+                });
+                var param = $.stringify(paramObj);
+                
+                $.post('/template/addOrUpdate',param,function (data) {
+                    if(data.status==0){
+                        self.modal('hide');
+                        $('#btn-submit').click();
+                    }else{
+                        showErrorMsg($box,'模板新增出错');
+                    }
+                },'json');
+            }
+        },700);
+    }
+
+    /**
+     * 删除模板
+     * @param {Number} id   模板ID
+     */
+    function delTemplate(templateName) {
+        var $box = $('#dlg-ret');
+        $box.html('您确定要删除这个模板吗？');
+        showDialog($box,'删除模板',{
+            '取消':function () {
+                this.modal('hide');
+            },
+            '删除':function () {
+                var self = this;
+                showLoading();
+                $.getJSON('/template/deleteByTemplateName?templateName='+templateName,function (data) {
+                    removeLoading();
+                    if(data.status==0){
+                        self.modal('hide');
+                        $('#btn-submit').click();
+                    }else{
+                        showErrorMsg($box,'模板删除出错');
+                    }
+                });
+            }
+        },600,50);
+    }
+
+    /**
+     * 获取模板名称
+     * @param {Function} callback  获取数据后的回调函数
+     * @return {String}  html      返回获取到的下拉列表
+     */
+    function getTemplate(callback) {
+        $.getJSON('/pages/server/api/template_name_list',function (data) {
+            if(data.ret_code==200){
+                var htmlStr = '';
+                $.each(data.data,function (index, n) {
+                    htmlStr += '<option value="'+n+'">'+n+'</option>';
+                });
+                callback(htmlStr);
+            }
+        });
+    }
+</script>
+</body>
+</html>

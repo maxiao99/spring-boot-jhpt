@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TARS</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_table.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap_table.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+
+<div class="table-box">
+    <h4 class="sub-header">配置列表</h4>
+    <div class="tool-bar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" onclick="ModifyProperties()">修改服务配置</button>
+        </div>
+    </div>
+    <div id="patch-properties-list" class="mt10"></div>
+</div>
+
+<div id="properties-window" class="form-horizontal" style="display: none">
+
+    <div class="form-group">
+<!--        <input type="hidden" name="property-name" id="property-name" value="">-->
+        <div class="col-sm-2"><label class="tr wp100 control-label">配置名称</label></div>
+        <div class="col-sm-10">
+            <ul id="properties-list"></ul>
+        </div>
+
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-2"><label class="tr wp100 control-label">配置值 <span class="text-danger">*</span></label></div>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="property-value" placeholder="配置值" name="value">
+        </div>
+    </div>
+</div>
+<div id="dlg-ret" style="display:none">
+<script type="text/html" id="patch-properties-tpl">
+    <table class="table table-bordered" id="patch-properties-table" width="400" >
+        <thead>
+        <tr>
+            <th><label><input type="checkbox" onchange="checkAll(this)"></label></th>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each data as item}}
+        <tr>
+            <td><label><input type="checkbox" class="chks" data-properties="{{item.name}}" data-pvalue="{{item.value}}" ></label></td>
+            <td>{{item.name}}</td>
+            <td>{{item.value}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td class="tpage" colspan="3"></td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+<script>
+
+    var myDate = new Date(),
+        gData = {};
+
+    var treeId = parent.tarsTree.treeId ? parent.tarsTree.treeId : getQueryStringArgs().treeId,
+        appName = parent.tarsTree.appName ? parent.tarsTree.appName : getQueryStringArgs().appName,
+        serverTemplateName = parent.tarsTree.serverTemplateName  ? parent.tarsTree.serverTemplateName : getQueryStringArgs().serverTemplateName;
+    gData.appName = appName;
+    gData.serverTemplateName = serverTemplateName;
+
+    if (appName=='root') {
+        $('body').html('<div class="alert alert-info mt10">服务配置需要具体到服务，请您先在左侧业务树选择服务。</div>');
+    } else {
+        getPropertiesList();
+    }
+    /**
+     * 获取配置列表
+     * @param {String} appName      应用名
+     * @param {String} serverTemplateName   服务模板名称
+     */
+
+    function getPropertiesList() {
+        $.ajax({
+            type: 'POST',
+            url: '/properties/queryPropertiesByName',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                appName: gData.appName,
+                serverTemplateName: gData.serverTemplateName
+            })
+        }).done(function (data) {
+            closeErrorMsg();
+            if (data.status == 0) {
+                var htmlStr = template('patch-properties-tpl', data);
+                $('#patch-properties-list').html(htmlStr);
+                $('#patch-properties-table').table();
+            } else {
+                showErrorMsg($('body'), data.statusInfo);
+            }
+        });
+    }
+
+    /**
+     * 修改配置
+     */
+    function ModifyProperties() {
+        var chks = $('#patch-properties-list').find('.chks:checked'),
+            paramArr = [], paramObj = {}, htmlStr = '';
+        var $box = $('#properties-window');
+        closeErrorMsg();
+        if (!chks.length) {
+            showErrorMsg($('body'), '请至少选择一个配置属性');
+            return;
+        }
+        if(chks.length >= 2){
+            showErrorMsg($('body'),'只能修改单个配置参数值');
+            return;
+        }
+        var name = [];
+        chks.each(function () {
+            htmlStr += '<li>' + $(this).data('properties') + '</li>';
+            name.push($(this).data('pvalue'));
+        });
+        $('#properties-list').html(htmlStr);
+
+        $("#property-value").val(name);
+        showDialog($box, '配置中心', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '修改': function () {
+                var self = this
+                paramObj.appName = gData.appName;
+                paramObj.serverTemplateName = gData.serverTemplateName;
+                paramObj.propertiesName = $('#properties-list li:first').html();
+                paramObj.propertiesValue =  $("#property-value").val();
+                showLoading();
+                var param = $.stringify(paramObj);
+                $.ajax({
+                    type: 'POST',
+                    url: '/properties/modifyProperties',
+                    dateType: 'json',
+                    contentType: "application/json;charset=utf-8",
+                    data: param
+                }).done(function (data) {
+                    removeLoading();
+                    var $msg = $('#msg');
+                    if (data.status == 0) {
+                        self.modal('hide');
+                        $msg.html('<div class="alert alert-success" role="alert"><h5>修改配置成功！</h5></div>');
+                        getPropertiesList();
+                    } else {
+                        showErrorMsg($box, '修改失败:' + data.statusInfo);
+                    }
+                });
+            }
+        }, 700);
+    }
+</script>
+<style>
+    .td{width:100px;}
+</style>
+
+</form>
+</div>
+<div id="dlg-ref-list" class="form-horizontal" style="display: none"></div>
+
+</body>
+</html>

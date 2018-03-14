@@ -1,0 +1,397 @@
+<!--
+ * Tencent is pleased to support the open source community by making Tars available.
+ *
+ * Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the BSD 3-Clause License (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://opensource.org/licenses/BSD-3-Clause
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div class="content">
+    <h4 class="sub-header">服务列表</h4>
+    <div class="tool-bar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" onclick="deployService()">发布选中节点</button>
+        </div>
+    </div>
+    <div id="patch-server-list" class="mt10"></div>
+</div>
+
+<!--上传发布包-->
+<div id="dlg-upload-patch" class="form-horizontal" style="display:none">
+    <form enctype="multipart/form-data" id="uploadForm">
+        <input type="hidden" name="appName" id="up-appName" value="">
+        <input type="hidden" name="serverTemplateName" id="up-server-name" value="">
+        <input type="hidden" name="serverId" id="up-serverId" value=""/>
+        <input type="hidden" name="ips" id="up-nodeIps" value=""/>
+        <div class="form-group">
+            <div class="col-sm-2"><label class="tr wp100 control-label">发布包<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input id="file" type="file" name="file" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"><label class="tr wp100 control-label">启动类<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" id="mainClass" name="mainClass" class="form-control" placeholder="com.juzix.plt.tsf.server.HelloWorldServer"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"><label class="tr wp100 control-label">版本<span class="text-danger">*</span></label></div>
+            <div class="col-sm-10">
+                <input type="text" id="version" name="version" class="form-control" placeholder="自定义版本"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"><label class="tr wp100 control-label">备注</label></div>
+            <div class="col-sm-10">
+                <textarea name="remark" id="remark" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-10">
+                <button type="button" id="upload" class="btn btn-primary btn-sm">上传</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="dlg-ret" style="display:none">
+
+</div>
+
+<div id="dlg-patch" class="form-horizontal" style="display: none">
+    <div class="form-group">
+        <div class="col-sm-2"><label class="tr wp100 control-label">应用·服务</label></div>
+        <div class="col-sm-10">
+            <!--<select class="form-control selectpicker" id="p-server-name" onchange="getPatchList($('#version-select'), $('#p-server-name'))">-->
+            <!--</select>-->
+            <ul id="p-server-name"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2"><label class="tr wp100 control-label">待发布节点</label></div>
+        <div class="col-sm-10">
+            <ul id="node-list"></ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2"><label class="tr wp100 control-label">选择发布版本</label></div>
+        <div class="col-sm-10">
+            <select name="" id="version-select" class="form-control">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-10">
+            <button type="button" class="btn btn-sm btn-default" onclick="openUploadDlg()"><i
+                    class="glyphicon glyphicon-upload"></i> 上传发布包
+            </button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2"><label class="tr wp100 control-label">备注</label></div>
+        <div class="col-sm-10">
+            <textarea name="" id="comment" class="form-control" rows="3"></textarea>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/html" id="patch-service-tpl">
+    <table class="table table-bordered" id="patch-service-table">
+        <thead>
+        <tr>
+            <th><label><input type="checkbox" onchange="checkAll(this)"></label></th>
+            <th>节点名称</th>
+            <th>节点ip</th>
+            <th>节点工作目录</th>
+            <th>节点状态</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each data as it}}
+        <tr>
+            <td><label><input type="checkbox" class="chks" data-node="{{it.ip}}" value="{{it.id}}"></label></td>
+            <td>{{it.name}}</td>
+            <td>{{it.ip}}</td>
+            <td>{{it.dir}}</td>
+            <td>{{if it.settingState=='active'}}<span class="label label-success">active</span>{{else}}<span class="label label-danger">inactive</span>{{/if}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td class="tpage" colspan="5"></td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+
+
+<script>
+    var treeId = parent.tarsTree.treeId ? parent.tarsTree.treeId : getQueryStringArgs().treeId,
+        appName = parent.tarsTree.appName ? parent.tarsTree.appName : getQueryStringArgs().appName,
+        serverTemplateName = parent.tarsTree.serverTemplateName ? parent.tarsTree.serverTemplateName : getQueryStringArgs().serverTemplateName;
+    var gData = {};
+    gData.appName = appName;
+    gData.serverTemplateName = serverTemplateName;
+
+    if (appName=='root') {
+        $('body').html('<div class="alert alert-info mt10">发布管理需要具体到服务，请您先在左侧业务树选择服务。</div>');
+    } else {
+        getService();
+    }
+
+    function getServer(serverName) {
+        var serverId = $('#p-server-name');
+        var version = $('#version-select');
+        serverName.empty();
+        serverName.append(gData.serverTemplateName);
+        getPatchList(version, serverId);
+//        $.ajax({
+//            type: 'POST',
+//            url: '/kv/hint',
+//            dateType: 'json',
+//            contentType: "application/json;charset=utf-8",
+//            data: JSON.stringify({
+//                module: 5,
+//                appName: gData.appName,
+//                serverTemplateName: gData.serverTemplateName,
+//            })
+//        }).done(function (data) {
+//            var tempAjax = "";
+//            $.each(data.data, function (i, n) {
+//                tempAjax += "<option value='" + n.value + "'>" + n.text + "</option>";
+//            });
+//            serverName.empty();
+//            serverName.append(tempAjax);
+//            if (data.data.length > 0) {
+//                getPatchList(version, serverId);
+//            }
+//        });
+    }
+
+    $('#upload').on('click', function () {
+        var $dlg = $('#dlg-upload-patch');
+        var serverName = $("#p-server-name");
+
+        var paramObj = {
+            mainClass     :   $.trim($('#mainClass').val()),
+            version     :   $.trim($('#version').val()),
+        };
+        if(!paramObj.mainClass){
+            showErrorMsg($dlg,'启动类不能为空');
+            return;
+        }
+        if(!paramObj.version){
+            showErrorMsg($dlg,'版本不能为空');
+            return;
+        }
+
+        showLoading();
+        $.ajax({
+            url: '/upload/server/',
+            type: 'POST',
+            cache: false,
+            data: new FormData($('#uploadForm')[0]),
+            processData: false,
+            contentType: false
+        }).done(function (data) {
+            removeLoading();
+            closeErrorMsg();
+            if (data.status == 0) {
+                $dlg.parents('.modal').modal('hide');
+                getServer(serverName);
+            } else {
+                showErrorMsg($dlg, data.statusInfo);
+            }
+        });
+    });
+
+
+    /**
+     * 获取服务列表
+     */
+    function getService() {
+        $.ajax({
+            type: 'POST',
+            url: '/node/queryServerNodeList',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                appName: gData.appName,
+                serverTemplateName: gData.serverTemplateName,
+            })
+        }).done(function (data) {
+            closeErrorMsg();
+            if (data.status == 0) {
+                var htmlStr = template('patch-service-tpl', data);
+                $('#patch-server-list').html(htmlStr);
+                $('#patch-service-table').table();
+            } else {
+                showErrorMsg($('body'), data.statusInfo);
+            }
+        })
+    }
+
+    /**
+     * 打开上传发布包弹出框
+     */
+    function openUploadDlg() {
+        var chks = $('#patch-server-list').find('.chks:checked').eq(0);
+        if (!chks.length) {
+            closeErrorMsg();
+            showErrorMsg($('body'), '请至少选择一个服务节点');
+            return;
+        }
+        var $box = $('#dlg-upload-patch');
+        $box.find('#up-appName').val(gData.appName);
+        $box.find('#up-server-name').val(gData.serverTemplateName);
+        $box.find('#up-serverId').val(gData.serverTemplateName);
+        var chks = $('#patch-server-list').find('.chks:checked');
+        var nodeIps =[];
+        chks.each(function () {
+            nodeIps.push($(this).data('node'));
+        });
+        $box.find('#up-nodeIps').val(gData.serverTemplateName);
+        showDialog($box, '上传发布包');
+    }
+
+    /**
+     * 获取发布版本列表
+     */
+    function getPatchList(version, serverId) {
+        $.ajax({
+            type: 'POST',
+            url: '/patch/server/list',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                appName: gData.appName,
+                serverTemplateName: gData.serverTemplateName,
+//                serverId: serverId.find("option:selected").text(),
+                serverId: gData.serverTemplateName,
+            })
+        }).done(function (data) {
+            closeErrorMsg();
+            var $dlg = $('#dlg-patch');
+            if (data.status == 0) {
+                var htmlStr = '';
+                $.each(data.data, function (index, n) {
+                    var commentStr = '';
+                    if (n.remark && n.remark.length > 20) {
+                        commentStr = n.remark.substring(0, 20) + '...';
+                    } else {
+                        commentStr = n.remark
+                    }
+                    htmlStr += '<option value="' + n.id + '">' + n.id + ' | ' + n.version + ' | ' + n.publishTime + ' | ' + commentStr + '</option>';
+                });
+                version.html(htmlStr);
+            } else {
+                showErrorMsg($dlg, data.statusInfo);
+            }
+        })
+    }
+
+    /**
+     * 发布服务
+     */
+    function deployService() {
+        var chks = $('#patch-server-list').find('.chks:checked'),
+            paramArr = [], paramObj = {}, htmlStr = '';
+        var $box = $('#dlg-patch');
+        closeErrorMsg();
+        if (!chks.length) {
+            showErrorMsg($('body'), '请至少选择一个服务节点');
+            return;
+        }
+        chks.each(function () {
+            htmlStr += '<li>' + $(this).data('node') + '</li>';
+        });
+        $('#node-list').html(htmlStr);
+
+        getServer($("#p-server-name"));
+        showDialog($box, '发布服务', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '发布': function () {
+                var self = this,
+                    patchId = $('#version-select').val();
+                if (!patchId) {
+                    showErrorMsg($box, '请选择发布版本');
+                    return;
+                }
+                var nodeIds = [];
+                chks.each(function () {
+                    nodeIds.push($(this).val());
+                });
+                paramObj.appName = gData.appName;
+                paramObj.serverTemplateName = gData.serverTemplateName;
+                paramObj.patchId = patchId;
+                paramObj.nodeIds = nodeIds;
+                showLoading();
+                var param = $.stringify(paramObj);
+                $.ajax({
+                    type: 'POST',
+                    url: '/server/deploy',
+                    dateType: 'json',
+                    contentType: "application/json;charset=utf-8",
+                    data: param
+                }).done(function (data) {
+                    removeLoading();
+                    if (data.status == 0) {
+                        var $dlg = $('#dlg-ret');
+                        self.modal('hide');
+                        /*var tableStr = '<table class="table"><caption>任务ID：'+data.data.task_no+'</caption><thead><tr><th>节点</th><th>状态</th></tr></thead><tbody>';
+                        $.each(data.data.items,function (index,n) {
+                            tableStr += '<tr><td>'+n.node_name+'</td><td class="curr-status">'+statusMap[n.status_info]+'</td></tr>';
+                        });
+                        tableStr += '</tobdy></table>';
+                        $dlg.html(tableStr);
+                        $('.curr-status').each(function () {
+                            getTaskStatus(data.data.task_no,$(this));
+                        });*/
+                        getService();
+                    } else {
+                        showErrorMsg($box, '服务发布失败:' + data.statusInfo);
+                    }
+                });
+            }
+        }, 700);
+    }
+
+
+</script>
+</body>
+</html>

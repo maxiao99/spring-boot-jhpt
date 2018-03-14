@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tyj.jhpt.dao.DianyaDetailMapper">
+  <resultMap id="BaseResultMap" type="com.tyj.jhpt.bo.DianyaDetail">
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="system_no" property="systemNo" jdbcType="INTEGER" />
+    <result column="dianya" property="dianya" jdbcType="INTEGER" />
+    <result column="dianliu" property="dianliu" jdbcType="INTEGER" />
+    <result column="simple_total" property="simpleTotal" jdbcType="INTEGER" />
+    <result column="seq" property="seq" jdbcType="INTEGER" />
+    <result column="own_simple_total" property="ownSimpleTotal" jdbcType="INTEGER" />
+    <result column="simple_totals" property="simpleTotals" jdbcType="LONGVARBINARY" />
+    <result column="dianya_id" property="dianyaId" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    `id`, `system_no`, `dianya`, `dianliu`, `simple_total`, `seq`, `own_simple_total`, `simple_totals`, `dianya_id`
+  </sql>
+  <insert id="insert" parameterType="com.tyj.jhpt.bo.DianyaDetail" useGeneratedKeys="true" keyProperty="id">
+    <![CDATA[
+    insert into `tb_dianya_detail` (`system_no`, `dianya`, `dianliu`, 
+      `simple_total`, `seq`, `own_simple_total`, 
+      `simple_totals`, `dianya_id`)
+    values (#{systemNo,jdbcType=INTEGER}, #{dianya,jdbcType=INTEGER}, #{dianliu,jdbcType=INTEGER}, 
+      #{simpleTotal,jdbcType=INTEGER}, #{seq,jdbcType=INTEGER}, #{ownSimpleTotal,jdbcType=INTEGER}, 
+      #{simpleTotals,jdbcType=LONGVARBINARY}, #{dianyaId,jdbcType=BIGINT})
+    ]]>
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List">
+    insert into `tb_dianya_detail` (`system_no`, `dianya`, `dianliu`, 
+      `simple_total`, `seq`, `own_simple_total`, 
+      `simple_totals`, `dianya_id`)
+     values 
+    <foreach collection="list" item="item" index="index" separator=",">
+       (#{item.systemNo,jdbcType=INTEGER}, #{item.dianya,jdbcType=INTEGER}, #{item.dianliu,jdbcType=INTEGER}, 
+        #{item.simpleTotal,jdbcType=INTEGER}, #{item.seq,jdbcType=INTEGER}, #{item.ownSimpleTotal,jdbcType=INTEGER}, 
+        #{item.simpleTotals,jdbcType=LONGVARBINARY}, #{item.dianyaId,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.tyj.jhpt.bo.DianyaDetail" useGeneratedKeys="true" keyProperty="id">
+    insert into `tb_dianya_detail`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="systemNo != null">
+        `system_no`,
+      </if>
+      <if test="dianya != null">
+        `dianya`,
+      </if>
+      <if test="dianliu != null">
+        `dianliu`,
+      </if>
+      <if test="simpleTotal != null">
+        `simple_total`,
+      </if>
+      <if test="seq != null">
+        `seq`,
+      </if>
+      <if test="ownSimpleTotal != null">
+        `own_simple_total`,
+      </if>
+      <if test="simpleTotals != null">
+        `simple_totals`,
+      </if>
+      <if test="dianyaId != null">
+        `dianya_id`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="systemNo != null">
+        #{systemNo,jdbcType=INTEGER},
+      </if>
+      <if test="dianya != null">
+        #{dianya,jdbcType=INTEGER},
+      </if>
+      <if test="dianliu != null">
+        #{dianliu,jdbcType=INTEGER},
+      </if>
+      <if test="simpleTotal != null">
+        #{simpleTotal,jdbcType=INTEGER},
+      </if>
+      <if test="seq != null">
+        #{seq,jdbcType=INTEGER},
+      </if>
+      <if test="ownSimpleTotal != null">
+        #{ownSimpleTotal,jdbcType=INTEGER},
+      </if>
+      <if test="simpleTotals != null">
+        #{simpleTotals,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="dianyaId != null">
+        #{dianyaId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from `tb_dianya_detail`
+    where `id` = #{id,jdbcType=BIGINT}
+  </delete>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from `tb_dianya_detail`
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from `tb_dianya_detail`
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tyj.jhpt.bo.DianyaDetail">
+    update `tb_dianya_detail`
+    <set>
+      <if test="systemNo != null">
+        `system_no` = #{systemNo,jdbcType=INTEGER},
+      </if>
+      <if test="dianya != null">
+        `dianya` = #{dianya,jdbcType=INTEGER},
+      </if>
+      <if test="dianliu != null">
+        `dianliu` = #{dianliu,jdbcType=INTEGER},
+      </if>
+      <if test="simpleTotal != null">
+        `simple_total` = #{simpleTotal,jdbcType=INTEGER},
+      </if>
+      <if test="seq != null">
+        `seq` = #{seq,jdbcType=INTEGER},
+      </if>
+      <if test="ownSimpleTotal != null">
+        `own_simple_total` = #{ownSimpleTotal,jdbcType=INTEGER},
+      </if>
+      <if test="simpleTotals != null">
+        `simple_totals` = #{simpleTotals,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="dianyaId != null">
+        `dianya_id` = #{dianyaId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tyj.jhpt.bo.DianyaDetail">
+    update `tb_dianya_detail`
+    set `system_no` = #{systemNo,jdbcType=INTEGER},
+      `dianya` = #{dianya,jdbcType=INTEGER},
+      `dianliu` = #{dianliu,jdbcType=INTEGER},
+      `simple_total` = #{simpleTotal,jdbcType=INTEGER},
+      `seq` = #{seq,jdbcType=INTEGER},
+      `own_simple_total` = #{ownSimpleTotal,jdbcType=INTEGER},
+      `simple_totals` = #{simpleTotals,jdbcType=LONGVARBINARY},
+      `dianya_id` = #{dianyaId,jdbcType=BIGINT}
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

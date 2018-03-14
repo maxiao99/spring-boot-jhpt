@@ -1,0 +1,266 @@
+<!--
+ * Tencent is pleased to support the open source community by making Tars available.
+ *
+ * Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the BSD 3-Clause License (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://opensource.org/licenses/BSD-3-Clause
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TARS</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_table.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_datepicker.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/echarts.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/bootstrap_table.min.js"></script>
+    <script src="../js/bootstrap_datepicker.min.js"></script>
+    <script src="../js/common.js"></script>
+    <style>
+        .charts_container {
+            overflow: hidden;
+            width: 1200px;
+            margin: 10px auto;
+        }
+
+        .charts_container .chart_box {
+            float: left;
+            width: 600px;
+            height: 300px;
+            margin-bottom: 10px;
+        }
+
+        .chart_box canvas {
+            margin: 0 10px;
+        }
+
+        .tool_bar {
+            border: solid 1px #9ed0ff;
+            margin-bottom: 10px;
+        }
+
+        .tool_bar a {
+            display: inline-block;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<form class="form-horizontal mt10" role="form">
+    <div class="form-group">
+        <div class="col-sm-1"><label class="tr wp100 control-label">实例</label></div>
+        <div class="col-sm-2">
+            <select class="form-control selectpicker" id="server_instance" onchange="getServerInstances()">
+            </select>
+        </div>
+        <div class="col-sm-1"><label class="tr wp100 control-label">类型</label></div>
+        <div class="col-sm-2">
+            <select class="form-control selectpicker" id="metrics_type" onchange="getMetricsViewName()">
+            </select>
+        </div>
+        <div class="col-sm-1"><label class="tr wp100 control-label">视图</label></div>
+        <div class="col-sm-2">
+            <select class="form-control selectpicker" id="metrics_view" onchange="getIdentity()">
+            </select>
+        </div>
+        <div class="col-sm-1"><label class="tr wp100 control-label">属性</label></div>
+        <div class="col-sm-2">
+            <select class="form-control selectpicker" id="metrics_identity" onchange="getData()">
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-1"><label class="tr wp100 control-label">显示日期</label></div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control datepicker" id="the_date">
+        </div>
+        <div class="col-sm-1"><label class="tr wp100 control-label">开始时间</label></div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="start_time" value="0000">
+        </div>
+        <div class="col-sm-1"><label class="tr wp100 control-label">结束时间</label></div>
+        <div class="col-sm-2">
+            <input type="text" class="form-control" id="end_time" value="2300">
+        </div>
+    </div>
+    <div class="tc mb10">
+        <button type="button" class="btn btn-primary" id="btn-submit">监控曲线</button>
+    </div>
+</form>
+
+<div class="charts_container">
+    <div class="chart_box" id="chart1" style="width:1000px;height:500px;"></div>
+</div>
+
+<script>
+    var myDate = new Date(),
+        gData = {};
+
+    var treeId = parent.tarsTree.treeId ? parent.tarsTree.treeId : getQueryStringArgs().treeId,
+        appName = parent.tarsTree.appName ? parent.tarsTree.appName : getQueryStringArgs().appName,
+        serverTemplateName = parent.tarsTree.serverTemplateName  ? parent.tarsTree.serverTemplateName : getQueryStringArgs().serverTemplateName;
+    gData.appName = appName;
+    gData.serverTemplateName = serverTemplateName;
+
+    if (appName=='root') {
+        $('body').html('<div class="alert alert-info mt10">服务监控需要具体到服务，请您先在左侧业务树选择服务。</div>');
+    } else {
+        $('#the_date').val(myDate.getFullYear() + '' + format(myDate.getMonth() + 1) + '' + format(myDate.getDate()));
+
+        $('.datepicker').datepicker({
+            format: 'yyyymmdd',
+            endDate: '+1'
+        });
+
+        getServerInstances();
+    }
+
+    function getServerInstances() {
+        $.ajax({
+            type: 'POST',
+            url: '/kv/hint',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                module: 4,
+                appName: gData.appName,
+                serverTemplateName: gData.serverTemplateName,
+            })
+        }).done(function (data) {
+            var tempAjax = "";
+            $.each(data.data, function (i, n) {
+                tempAjax += "<option value='" + n.value + "'>" + n.text + "</option>";
+            });
+            $("#server_instance").empty();
+            $("#server_instance").append(tempAjax);
+            getMetricsType();
+        });
+    }
+
+    function getMetricsType() {
+        $.ajax({
+            type: 'POST',
+            url: '/kv/hint',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                module: 3
+            })
+        }).done(function (data) {
+            var tempAjax = "";
+            $.each(data.data, function (i, n) {
+                tempAjax += "<option value='" + n.value + "'>" + n.text + "</option>";
+            });
+            $("#metrics_type").empty();
+            $("#metrics_type").append(tempAjax);
+            getMetricsViewName();
+        });
+    }
+
+    function getMetricsViewName() {
+        $.ajax({
+            type: 'POST',
+            url: '/kv/hint',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                module: 2,
+                type: $('#metrics_type').find("option:selected").text(),
+                serverId: $('#server_instance').find("option:selected").text(),
+                date: $('#the_date').val()
+            })
+        }).done(function (data) {
+            var tempAjax = "";
+            $.each(data.data, function (i, n) {
+                tempAjax += "<option value='" + n.value + "'>" + n.text + "</option>";
+            });
+            $("#metrics_view").empty();
+            $("#metrics_view").append(tempAjax);
+            getIdentity();
+        });
+    }
+
+    function getIdentity() {
+        $.ajax({
+            type: 'POST',
+            url: '/kv/hint',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                module: 1,
+                type: $('#metrics_type').find("option:selected").text(),
+                serverId: $('#server_instance').find("option:selected").text(),
+                date: $('#the_date').val(),
+                metricsViewName: $('#metrics_view').find("option:selected").attr('value'),
+            })
+        }).done(function (data) {
+            var tempAjax = "";
+            $.each(data.data, function (i, n) {
+                tempAjax += "<option value='" + n.value + "'>" + n.text + "</option>";
+            });
+            $("#metrics_identity").empty();
+            $("#metrics_identity").append(tempAjax);
+            getData();
+        });
+    }
+
+    function getObj() {
+        var paramObj = {
+            serverId: $('#server_instance').find("option:selected").text(),
+            type: $('#metrics_type').find("option:selected").text(),
+            metricsViewName: $('#metrics_view').find("option:selected").attr('value'),
+            identity: $('#metrics_identity').find("option:selected").attr('value'),
+            startFTflag: $('#start_time').val(),
+            endFTflag: $('#end_time').val(),
+            date: $('#the_date').val(),
+        };
+        return paramObj;
+    }
+
+    $('#btn-submit').click(function () {
+        getData();
+    });
+
+    function getData() {
+        ctx1.showLoading();
+        $.ajax({
+            type: 'POST',
+            url: $('#metrics_type').find("option:selected").attr('value'),
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify(getObj())
+        }).done(function (data) {
+            ctx1.hideLoading();
+            ctx1.setOption(data.data);
+        });
+    }
+
+    var ctx1 = echarts.init(document.getElementById("chart1"));
+
+    function format(n) {
+        return n < 10 ? '0' + n : n;
+    }
+</script>
+</body>
+</html>

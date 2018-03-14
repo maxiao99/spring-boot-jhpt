@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tyj.jhpt.dao.WenduDetailMapper">
+  <resultMap id="BaseResultMap" type="com.tyj.jhpt.bo.WenduDetail">
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="system_no" property="systemNo" jdbcType="INTEGER" />
+    <result column="count" property="count" jdbcType="INTEGER" />
+    <result column="values" property="values" jdbcType="LONGVARBINARY" />
+    <result column="wendu_id" property="wenduId" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    `id`, `system_no`, `count`, `values`, `wendu_id`
+  </sql>
+  <insert id="insert" parameterType="com.tyj.jhpt.bo.WenduDetail" useGeneratedKeys="true" keyProperty="id">
+    <![CDATA[
+    insert into `tb_wendu_detail` (`system_no`, `count`, `values`, 
+      `wendu_id`)
+    values (#{systemNo,jdbcType=INTEGER}, #{count,jdbcType=INTEGER}, #{values,jdbcType=LONGVARBINARY}, 
+      #{wenduId,jdbcType=BIGINT})
+    ]]>
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List">
+    insert into `tb_wendu_detail` (`system_no`, `count`, `values`, 
+      `wendu_id`)
+     values 
+    <foreach collection="list" item="item" index="index" separator=",">
+       (#{item.systemNo,jdbcType=INTEGER}, #{item.count,jdbcType=INTEGER}, #{item.values,jdbcType=LONGVARBINARY}, 
+        #{item.wenduId,jdbcType=BIGINT})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.tyj.jhpt.bo.WenduDetail" useGeneratedKeys="true" keyProperty="id">
+    insert into `tb_wendu_detail`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="systemNo != null">
+        `system_no`,
+      </if>
+      <if test="count != null">
+        `count`,
+      </if>
+      <if test="values != null">
+        `values`,
+      </if>
+      <if test="wenduId != null">
+        `wendu_id`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="systemNo != null">
+        #{systemNo,jdbcType=INTEGER},
+      </if>
+      <if test="count != null">
+        #{count,jdbcType=INTEGER},
+      </if>
+      <if test="values != null">
+        #{values,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="wenduId != null">
+        #{wenduId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from `tb_wendu_detail`
+    where `id` = #{id,jdbcType=BIGINT}
+  </delete>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from `tb_wendu_detail`
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from `tb_wendu_detail`
+    where `id` = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="count" resultType="java.lang.Integer">
+    select count(*) from `tb_wendu_detail`
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tyj.jhpt.bo.WenduDetail">
+    update `tb_wendu_detail`
+    <set>
+      <if test="systemNo != null">
+        `system_no` = #{systemNo,jdbcType=INTEGER},
+      </if>
+      <if test="count != null">
+        `count` = #{count,jdbcType=INTEGER},
+      </if>
+      <if test="values != null">
+        `values` = #{values,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="wenduId != null">
+        `wendu_id` = #{wenduId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tyj.jhpt.bo.WenduDetail">
+    update `tb_wendu_detail`
+    set `system_no` = #{systemNo,jdbcType=INTEGER},
+      `count` = #{count,jdbcType=INTEGER},
+      `values` = #{values,jdbcType=LONGVARBINARY},
+      `wendu_id` = #{wenduId,jdbcType=BIGINT}
+    where `id` = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
