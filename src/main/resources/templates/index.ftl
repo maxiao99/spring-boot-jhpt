@@ -37,102 +37,73 @@
     <script src="../js/common.js"></script>
     <script src="../js/index.js"></script>
     <style>
-        .frame-sidebar{position:absolute;width:240px;left:10px;top:65px;bottom:15px;overflow-y:auto;overflow-x: hidden;border:solid 1px #ddd;border-radius: 5px;}
-        .frame-primary{margin: 65px 0 0 250px;}
-        .tab-pane iframe{width: 100%;height: 100%;}
+        .frame-sidebar {
+            position: absolute;
+            width: 240px;
+            left: 10px;
+            top: 65px;
+            bottom: 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: solid 1px #ddd;
+            border-radius: 5px;
+        }
+
+        .frame-primary {
+            margin: 65px 0 0 250px;
+        }
+
+        .tab-pane iframe {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
-    <#include "include/header.ftl">
-    <#include "include/sider.ftl">
+<#include "include/header.ftl">
+<#include "include/sider.ftl">
 
-    <div class="frame-primary">
-        <div class="container-fluid" id="tab_container">
-            <ul class="nav nav-tabs" role="tablist" id="myTab">
-                <li role="presentation" class="active"><a href="#home" role="tab" data-active="0" data-toggle="tab">服务管理</a></li>
-                <li role="presentation"><a href="#publish" role="tab" data-active="1" data-toggle="tab">发布管理</a></li>
-                <li role="presentation"><a href="#serviceCfg" role="tab" data-active="2" data-toggle="tab">服务配置</a></li>
-                <li role="presentation"><a href="#serviceMonitor" role="tab" data-active="3" data-toggle="tab">服务监控</a></li>
-                <li role="presentation"><a href="#propertyMonitor" role="tab" data-active="4" data-toggle="tab">特性监控</a></li>
-            </ul>
+<div class="frame-primary">
+    <div class="container-fluid" id="tab_container">
+        <ul class="nav nav-tabs" role="tablist" id="myTab">
+            <li role="presentation" class="active"><a href="#home" role="tab" data-active="0" data-toggle="tab">首页</a></li>
+        </ul>
 
-            <div class="tab-content pt10">
-                <div role="tabpanel" class="tab-pane active" id="home" data-url="server_list.html">
-                    <iframe class="frame" width="100%" frameborder="0"></iframe>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="publish" data-url="pub_manage.html">
-                    <iframe  class="frame" width="100%" frameborder="0"></iframe>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="serviceCfg" data-url="service_cfg.html">
-                    <iframe class="frame" width="100%" frameborder="0"></iframe>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="serviceMonitor" data-url="monitor.html">
-                    <iframe class="frame" width="100%" frameborder="0"></iframe>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="propertyMonitor" data-url="property_monitor.html">
-                    <iframe class="frame" width="100%" frameborder="0"></iframe>
-                </div>
+        <div class="tab-content pt10" id="myTabContent">
+            <div role="tabpanel" class="tab-pane active" id="home" data-url="helloworld.html">
+                <iframe class="frame" width="100%" frameborder="0" id="home-frame"></iframe>
             </div>
         </div>
     </div>
 </body>
 
 <script>
-    var ifr = $('.frame'),
-            $window = $(window);
-    ifr.height($(window).height()-130);
+    var ifr = $('.frame');
+    var $window = $(window);
+    ifr.height($(window).height() - 130);
 
-    $window.on('resize',function () {
+    $window.on('resize', function () {
         var t;
         t = setTimeout(function () {
             clearTimeout(t);
-            ifr.height($window.height()-130);
-        },1);
+            ifr.height($window.height() - 130);
+        }, 1);
     });
 
-    var hashMap = gethashStringArgs(),
-        tab = $('#myTab').find('a'),
-        tabIndex = hashMap.tabIndex,
-        tabUrl = hashMap.tabUrl,
-        treeId = hashMap.treeId,
-            appName = hashMap.appName,
-            serverTemplateName = hashMap.serverTemplateName;
-    tarsTree.activeTab=tabIndex;
-    tarsTree.appName = appName;
-    tarsTree.serverTemplateName = serverTemplateName;
-    tarsTree.treeId = treeId;
-    $(tab[tabIndex]).tab('show'); 
     var $activeTab = $('.tab-content').find('.active');
-    $activeTab.find('.frame').attr('src',$activeTab.attr('data-url')+'?treeId='+tarsTree.treeId +'&appName='+tarsTree.appName+'&serverTemplateName='+tarsTree.serverTemplateName);
+    $activeTab.find('.frame').attr('src', $activeTab.attr('data-url'));
 
     $('#myTab a').click(function (e) {
         e.preventDefault();
-        tarsTree.activeTab=$(this).attr('data-active');
-        if(tarsTree.treeId){
-            $(this).tab('show');
-            $activeTab = $('.tab-content').find('.active');
-            $activeTab.find('.frame').attr('src',$activeTab.attr('data-url')+'?treeId='+tarsTree.treeId +'&appName='+tarsTree.appName+'&serverTemplateName='+tarsTree.serverTemplateName);
-        }
-        location.hash='#tabUrl='+$activeTab.attr('data-url')+'&tabIndex='+tarsTree.activeTab+'&treeId='+tarsTree.treeId +'&appName='+tarsTree.appName+'&serverTemplateName='+tarsTree.serverTemplateName;
+        tarsTree.activeTab = $(this).attr('data-active');
+        $(this).tab('show');
+        $activeTab = $('.tab-content').find('.active');
+        $activeTab.find('.frame').attr('src', $activeTab.attr('data-url'));
+        location.hash = '#tabUrl=' + $activeTab.attr('data-url');
     });
 
     $('.index').addClass('active');
     $('.operator').removeClass('active');
-
-
-    function gethashStringArgs(){
-        var qs=(location.hash.length>0 ? location.hash.substring(1) : '');
-        var args={};
-        var items=qs.split('&');
-        var item=null,name=null,value=null;
-        for(var i=0;i<items.length;i++){
-            item=items[i].split('=');
-            name=decodeURIComponent(item[0]);
-            value=decodeURIComponent(item[1]);
-            args[name]=value;
-        }
-        return args;
-    }
 </script>
 
 </html>

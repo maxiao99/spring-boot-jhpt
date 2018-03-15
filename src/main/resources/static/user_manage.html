@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <title></title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_table.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap_table.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div class="content">
+    <h4 class="sub-header">账户列表</h4>
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-1"><label class="tr wp100 control-label">关键字：</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control date" id="keyword-name" placeholder="用户名/姓名">
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-query" onclick="">查询</button>
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-add">新增</button>
+            </div>
+        </div>
+    </div>
+    <div id="cur-status-container">
+        <div id="cur-status-box">
+            <table id="dyTable"></table>
+        </div>
+    </div>
+</div>
+
+<div id="dlg-add-profile" style="display: none">
+    <input type="hidden" class="form-control" id="id" name="id">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-user-name" class="control-label wp100">用户名<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-user-name" placeholder="用户名" name="userName">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-real-name" class="control-label wp100">真实姓名<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-real-name" placeholder="真实姓名" name="realName">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-password" class="control-label wp100">密码<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-password" placeholder="密码" name="password">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-confirm-password" class="control-label wp100">确认密码<span
+                        class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-confirm-password" placeholder="确认密码"
+                       name="confirmPassword">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-auth-id" class="control-label wp100">权限ID<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-auth-id" name="authId">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dlg-edit-profile" style="display: none">
+    <input type="hidden" class="form-control" id="e-id" name="id">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-user-name" class="control-label wp100">用户名<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-user-name" placeholder="用户名" name="userName">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-real-name" class="control-label wp100">真实姓名<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-real-name" placeholder="真实姓名" name="realName">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-auth-id" class="control-label wp100">权限ID<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-auth-id" name="authId">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dlg-ret" style="display:none;">
+
+</div>
+
+<script>
+    $(function () {
+        var keyword = $.trim($('#keyword-name').val());
+        getUserList(keyword);
+
+        $('#btn-query').click(function () {
+            var keyword = $.trim($('#keyword-name').val());
+            getUserList(keyword);
+        });
+
+        $('#btn-add').click(function () {
+            var $box = $('#dlg-add-profile');
+            $box.find('#a-user-name').val('');
+            $box.find('#a-real-name').val('');
+            $box.find('#a-password').val('');
+            $box.find('#a-confirm-password').val('');
+            $box.find('#a-auth-id').val('');
+
+            showDialog($box, '新增账户', {
+                '取消': function () {
+                    this.modal('hide');
+                },
+                '确定': function () {
+                    var paramObj = {
+                        userName: $.trim($('#a-user-name').val()),
+                        realName: $.trim($('#a-real-name').val()),
+                        password: $.trim($('#a-password').val()),
+                        confirmPassword: $.trim($('#a-confirm-password').val()),
+                        authId: $.trim($('#a-auth-id').val()),
+                    };
+                    var self = this;
+                    closeErrorMsg();
+                    if (!paramObj.userName) {
+                        showErrorMsg($box, '请填写用户名');
+                        return;
+                    }
+                    if (!paramObj.realName) {
+                        showErrorMsg($box, '请填写真实姓名');
+                        return;
+                    }
+                    if (!paramObj.password) {
+                        showErrorMsg($box, '请填写密码');
+                        return;
+                    }
+                    if (!paramObj.confirmPassword) {
+                        showErrorMsg($box, '请填写确认密码');
+                        return;
+                    }
+                    if (paramObj.password != paramObj.confirmPassword) {
+                        showErrorMsg($box, '密码和确认密码不一样,请重新输入');
+                        return;
+                    }
+                    if (!paramObj.authId) {
+                        showErrorMsg($box, '请填写权限ID');
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/user/add_user',
+                        dateType: 'json',
+                        contentType: "application/json;charset=utf-8",
+                        data: JSON.stringify(paramObj)
+                    }).done(function (resp) {
+                        if (resp.status == 0) {
+                            self.modal('hide');
+                            $('#btn-query').click();
+                        } else {
+                            showErrorMsg($box, resp.statusInfo);
+                        }
+                    });
+                }
+            }, 700);
+        });
+    });
+
+    function getUserList(keyword) {
+        $("#dyTable").bootstrapTable('destroy');
+        $('#dyTable').bootstrapTable({
+            url: 'user/page/list',
+            method: 'POST',
+            cache: false,
+            pageNumber: 1,
+            pageSize: 10,
+            striped: true,
+            pagination: true,
+            dataType: 'json',
+            sortable: true,
+            sidePagination: "server",
+            pageList: [10, 25, 50, 100],
+            queryParams: function (params) {
+                return {
+                    limit: params.limit,
+                    currentPage: params.offset / 10 + 1,
+                    keyword: keyword
+                };
+            },
+            responseHandler: function (res) {
+                if (res.status != 0) {
+                    $('#dyTable').html('<tr><td><p class="text-danger tc">参数错误</p></td></tr>');
+                    return;
+                }
+                $.each(res.data.rows, function (index, n) {
+                    if (/^\[alarm\]\s(zombie process,no keep alive msg for 60 seconds|down, server is inactive|down,pid not exist|activating,pid not exist)/gi.test(n.result)) {
+                        n.result = '<span class="text-danger">' + n.result + '</span>';
+                    }
+                });
+                return {
+                    total: res.data.total,
+                    rows: res.data.rows
+                }
+            },
+            columns: [{
+                field: 'userName',
+                title: '用户名'
+            }, {
+                field: 'realName',
+                title: '真实姓名'
+            }, {
+                field: 'authId',
+                title: '角色'
+            }, {
+                field: 'creatorId',
+                title: '创建人'
+            }, {
+                field: 'createTime',
+                title: '创建时间'
+            }, {
+                field: 'id',
+                title: '操作',
+                align: 'center',
+                valign: 'middle',
+                formatter: actionFormatter
+            }]
+        });
+    }
+
+    // 操作栏的格式化
+    function actionFormatter(value, row, index) {
+        var id = value;
+        var result = "";
+        result += "<a href='javascript:;' class='btn btn-xs green' onclick=\"viewById('" + id + "', view='view')\" title='查看'><span class='glyphicon glyphicon-search'></span></a>";
+        result += "<a href='javascript:;' class='btn btn-xs blue' onclick=\"editViewById('" + id + "')\" title='编辑'><span class='glyphicon glyphicon-pencil'></span></a>";
+        result += "<a href='javascript:;' class='btn btn-xs red' onclick=\"deleteById('" + id + "')\" title='删除'><span class='glyphicon glyphicon-remove'></span></a>";
+
+        return result;
+    }
+
+    function viewById(id) {
+        var $box = $('#dlg-edit-profile');
+        $.ajax({
+            type: 'POST',
+            url: '/user/get_user?id=' + id,
+        }).done(function (resp) {
+            if (resp.status == 0) {
+                $box.find('#e-user-name').val(resp.data.userName);
+                $box.find('#e-user-name').attr("readonly", true);
+                $box.find('#e-real-name').val(resp.data.realName);
+                $box.find('#e-real-name').attr("readonly", true);
+                $box.find('#e-auth-id').val(resp.data.authId);
+                $box.find('#e-auth-id').attr("readonly", true);
+            } else {
+                showErrorMsg($box, resp.statusInfo);
+            }
+            showDialog($box, '查看账户', {
+                '关闭': function () {
+                    this.modal('hide');
+                    $box.find('#e-user-name').attr("readonly", false);
+                    $box.find('#e-real-name').attr("readonly", false);
+                    $box.find('#e-auth-id').attr("readonly", false);
+                },
+            }, 600);
+        });
+    }
+
+    function editViewById(id) {
+        var $box = $('#dlg-edit-profile');
+        $.ajax({
+            type: 'POST',
+            url: '/user/get_user?id=' + id,
+        }).done(function (resp) {
+            if (resp.status == 0) {
+                $box.find('#e-id').val(resp.data.id);
+                $box.find('#e-user-name').val(resp.data.userName);
+                $box.find('#e-user-name').attr("readonly", false);
+                $box.find('#e-real-name').val(resp.data.realName);
+                $box.find('#e-real-name').attr("readonly", false);
+                $box.find('#e-auth-id').val(resp.data.authId);
+                $box.find('#e-auth-id').attr("readonly", false);
+            } else {
+                showErrorMsg($box, resp.statusInfo);
+            }
+        });
+
+        showDialog($box, '编辑账户', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '确定': function () {
+                var paramObj = {
+                    id: $.trim($('#e-id').val()),
+                    userName: $.trim($('#e-user-name').val()),
+                    realName: $.trim($('#e-real-name').val()),
+                    authId: $.trim($('#e-auth-id').val()),
+                };
+                var self = this;
+                closeErrorMsg();
+                if (!paramObj.userName) {
+                    showErrorMsg($box, '请填写用户名');
+                    return;
+                }
+                if (!paramObj.realName) {
+                    showErrorMsg($box, '请填写真实姓名');
+                    return;
+                }
+                if (!paramObj.authId) {
+                    showErrorMsg($box, '请填写权限ID');
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/user/edit_user',
+                    dateType: 'json',
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify(paramObj)
+                }).done(function (resp) {
+                    if (resp.status == 0) {
+                        self.modal('hide');
+                        $('#btn-query').click();
+                    } else {
+                        showErrorMsg($box, resp.statusInfo);
+                    }
+                });
+            }
+        }, 700);
+    }
+
+    function deleteById(id) {
+        var $box = $('#dlg-ret');
+        $box.html('您确定要删除这个账户吗？');
+        showDialog($box, '删除账户', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '删除': function () {
+                var self = this;
+                showLoading();
+                $.ajax({
+                    type: 'POST',
+                    url: '/user/del_user?id=' + id,
+                }).done(function (resp) {
+                    removeLoading();
+                    if (resp.status == 0) {
+                        self.modal('hide');
+                        $('#btn-query').click();
+                    } else {
+                        showErrorMsg($box, resp.statusInfo);
+                    }
+                });
+            }
+        }, 600, 50);
+    }
+</script>
+</body>
+</html>

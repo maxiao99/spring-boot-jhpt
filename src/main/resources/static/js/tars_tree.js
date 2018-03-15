@@ -16,82 +16,146 @@
 
 var tarsTree = {};
 tarsTree.activeTab = 0;
+var TAB_INDEX = 'tab_seed_';
+var CONTAINER_INDEX = 'tab_container_';
+var AHREF_INDEX = 'tab_ahref_';
+var IFRAME_INDEX = 'tab_iframe_';
+
+var htmlMap = {
+    "device_info/device_info": "",
+    "pay/customer_list": "",
+    "pay/record_list": "",
+    "device_info/to_activate_list": "",
+    "device_info/all_list": "",
+    "device_info/config_list": "",
+    "device_info/msg_list": "",
+    "device_info/real_time": "",
+    "user/user_list": "user_manage.html",
+}
 
 $(function () {
-    $.getJSON('/server/getTreeMenu',function (data) {
-        if(data.status==0 && data.data){
+    $.ajax({
+        type: 'POST',
+        url: '/user/get_menu',
+        dateType: 'json',
+        contentType: "application/json;charset=utf-8",
+        data: JSON.stringify({
+            userName: "admin",
+            userPassword: "admin",
+        })
+    }).done(function (data) {
+        if (data.status == 0) {
             var treeId = location.hash.split('treeId=');
-            
+
             data.data[0].open = true;
-            if(treeId.length && treeId[0]){
-                showTree(data.data,$('#tree-container'),'radio',location.hash.split('treeId=')[1]);
-            }else{
-                showTree(data.data,$('#tree-container'),'radio');
+            if (treeId.length && treeId[0]) {
+                showTree(data.data, $('#tree-container'), 'radio', location.hash.split('treeId=')[1]);
+            } else {
+                showTree(data.data, $('#tree-container'), 'radio');
                 var treeObj = $.fn.zTree.getZTreeObj("filetree");
 
                 var nodes = treeObj.getNodes();
-                if (nodes.length>0) {
+                if (nodes.length > 0) {
                     treeObj.selectNode(nodes[1]);
                 }
             }
-        }else{
-            $('#tree-container').html('<div class="alert alert-danger" role="alert"><strong>业务树加载出错!</strong> '+data.err_msg+'</div>');
+        } else {
+            $('#tree-container').html('<div class="alert alert-danger" role="alert"><strong>业务树加载出错!</strong> ' + data.err_msg + '</div>');
         }
     });
 });
 
 
-tarsTree.zTreeClick=function(e,treeId, treeNode){
-    //tarsTree.zTreeObj.expandNode(treeNode);
-
-    var id = treeNode.pid.replace(/^\d/,'')+'.'+treeNode.name,
-        $panel = $('#tab_container').find('.tab-pane'),
-        index = parseInt(tarsTree.activeTab) || 0,
-        url = $panel.eq(index).attr('data-url');
-    var params = treeNode.id.split('.'),
-        level = params[params.length-1].substring(0,1);
-    var tabs = $('#myTab').find('li');
-    switch(parseInt(level)){
-        case 1 :
-            tabs.removeClass('hide');
-            tabs.not(tabs.eq(0)).not(tabs.eq(2)).addClass('hide');
-            tabs.eq(2).find('a').text('应用配置');
-            break;
-        case 2 :
-        case 3 :
-            tabs.removeClass('hide');
-            tabs.not(tabs.eq(0)).addClass('hide');
-            break;
-        case 4 :
-            tabs.removeClass('hide');
-            tabs.not(tabs.eq(0)).not(tabs.eq(2)).addClass('hide');
-            tabs.eq(2).find('a').text('Set配置');
-            break;
-        case 5:
-            tabs.removeClass('hide');
-            tabs.eq(2).find('a').text('服务配置');
+tarsTree.zTreeClick = function (e, treeId, treeNode) {
+    if (treeNode.url == 'undefined' || treeNode.url == '') {
+        return;
     }
-    tarsTree.treeId = treeNode.id;
-    tarsTree.appName = treeNode.pid;
-    tarsTree.serverTemplateName = treeNode.id;
-    location.hash = 'tabUrl='+url+'&tabIndex='+parseInt(tarsTree.activeTab)+'&treeId='+tarsTree.treeId +'&appName='+tarsTree.appName+'&serverTemplateName='+tarsTree.serverTemplateName;   //url
-    getActiveTab(treeNode.id);
-    tarsTree.treeName = id;
-    $panel.eq(index).find('iframe')[0].src = '/'+url+'?treeId='+tarsTree.treeId +'&appName='+tarsTree.appName+'&serverTemplateName='+tarsTree.serverTemplateName;
-    //$panel.eq(0).find('iframe')[0].src = '/server_list.html?treeId='+treeNode.id;
+    var url = htmlMap[treeNode.url];
+    if (url == 'undefined' || url == '') {
+        return;
+    }
+    var tabs = $('#myTab').find('li');
+    var currentIndex = tabs.size();
+
+    var open_tab_id = TAB_INDEX + currentIndex;
+    var next_ahref_id = AHREF_INDEX + currentIndex;
+
+    var li_tab = '<li role="presentation" id="' + open_tab_id + '"><a id="' + next_ahref_id + '" href="#tab_container_' + currentIndex + '" role="tab" data-active="' + currentIndex + '" data-toggle="tab">' + treeNode.text;
+    $(li_tab + '<i class="glyphicon glyphicon-remove small" tabclose="' + open_tab_id + '" style="position: absolute;right:4px;top: 4px;" onclick="closeTab(this)"></i></a></li>').appendTo('#myTab');
+
+    $('#' + open_tab_id).prev().removeClass('active');
+    $("#" + open_tab_id).addClass("active");
+
+    $('#myTab a').click(function (e) {
+        e.preventDefault();
+        tarsTree.activeTab = $(this).attr('data-active');
+        if (tarsTree.treeId) {
+            $(this).tab('show');
+            $activeTab = $('.tab-content').find('.active');
+            $activeTab.find('.frame').attr('src', $activeTab.attr('data-url'));
+        }
+        location.hash = '#tabUrl=' + $activeTab.attr('data-url');
+    });
+
+    var open_iframe_id = IFRAME_INDEX + currentIndex;
+    var height = $('#home-frame').attr('style');
+    var open_container_id = CONTAINER_INDEX + currentIndex;
+
+    var tabpanel = '<div role="tabpanel" class="tab-pane" id="' + open_container_id + '" data-url="' + url + '">' +
+        '<iframe id="' + open_iframe_id + '" class="frame" width="100%" frameborder="0" style="' + height + '"></iframe></div>';
+    $(tabpanel).appendTo('#myTabContent');
+
+    $('#' + open_container_id).prev().removeClass('active');
+    $("#" + open_container_id).addClass("active");
+
+    $('#' + next_ahref_id).tab('show');
+    location.hash = 'tabUrl=' + url;   //url
+
+    $('#' + open_iframe_id).attr('src', '/' + url);
 };
+
+function closeTab(item) {
+    var val = $(item).attr('tabclose');
+    var closeTab = $("#" + val);
+    // 前一个 tab active
+    var prevTab = closeTab.prev();
+    prevTab.addClass("active");
+
+    // tab 移除
+    closeTab.remove();
+
+    var containerId = CONTAINER_INDEX + val.substring(9);
+    var closeContainer = $("#" + containerId);
+    // 前一个 container active
+    var prevContainer = closeContainer.prev();
+    prevContainer.addClass("active");
+
+    // li 移除
+    closeContainer.remove();
+
+    var preva = prevTab.find('a');
+    tarsTree.activeTab = preva.attr('data-active');
+    preva.tab('show');
+    $activeTab = $('.tab-content').find('.active');
+    $activeTab.find('.frame').attr('src', $activeTab.attr('data-url'));
+    location.hash = '#tabUrl=' + $activeTab.attr('data-url');
+}
 
 tarsTree.setting = {
     data: {
+        key: {
+            name: "text",
+            url: "url1",
+        },
         simpleData: {
             enable: false,
             idKey: "id",
             pIdKey: "pid",
-            rootPId:'root'
+            rootPId: '0'
         }
     },
     async: {
-        enable:false
+        enable: false
     },
     check: {
         //enable: true
@@ -100,7 +164,7 @@ tarsTree.setting = {
     view: {
         selectedMulti: false,
         dblClickExpand: false,
-        showIcon:false
+        showIcon: false
     },
     callback: {
         onClick: tarsTree.zTreeClick
@@ -114,44 +178,33 @@ tarsTree.setting = {
  *  @param selectedData {Array} 已选数据
  *  @param callback {Function} 回调函数
  */
-function showTree(data,treeContainer,checkType,selectedData,callback) {
+function showTree(data, treeContainer, checkType, selectedData, callback) {
     var $treeObj;
-    tarsTree.setting.check.enable = (checkType =='check');
+    tarsTree.setting.check.enable = (checkType == 'check');
     tarsTree.treeContainer = treeContainer;
     tarsTree.checkType = checkType;
-    tarsTree.callback = callback || function(){};
+    tarsTree.callback = callback || function () {
+    };
     $treeObj = treeContainer.find("#filetree");
-    if(data.length){
-        $.fn.zTree.init($treeObj, tarsTree.setting,data);
+    if (data.length) {
+        $.fn.zTree.init($treeObj, tarsTree.setting, data);
         tarsTree.zTreeObj = $.fn.zTree.getZTreeObj('filetree');
-        if(selectedData){
-            if(checkType!='check'){
-                var node = tarsTree.zTreeObj.getNodeByParam('id',selectedData,null);
+        if (selectedData) {
+            if (checkType != 'check') {
+                var node = tarsTree.zTreeObj.getNodeByParam('id', selectedData, null);
                 tarsTree.zTreeObj.selectNode(node);
-            }else{
+            } else {
                 var dataArr = selectedData.split(','),
                     checkedNodes = [];
-                $.each(dataArr,function(index,n){
-                    checkedNodes.push(tarsTree.zTreeObj.getNodeByParam('id',n,null));
+                $.each(dataArr, function (index, n) {
+                    checkedNodes.push(tarsTree.zTreeObj.getNodeByParam('id', n, null));
                 });
-                $.each(checkedNodes,function(index,n){
-                    tarsTree.zTreeObj.checkNode(n,true,false);
+                $.each(checkedNodes, function (index, n) {
+                    tarsTree.zTreeObj.checkNode(n, true, false);
                     tarsTree.zTreeObj.selectNode(n);
                 });
             }
         }
     }
-}
-
-function getActiveTab(treeId) {
-    var tabs = $('#myTab').find('li');
-    $.each(tabs,function (index,n) {
-        if($(n).hasClass('active') && $(n).hasClass('hide')){
-            tabs.eq(0).find('a').tab('show');
-            $('#tab_container').find('.tab-pane').eq(0).find('iframe')[0].src = '/server_list.html?treeId='+treeId;
-            location.hash = 'tabUrl=server_list.html&tabIndex=0&treeId='+treeId;
-            tarsTree.activeTab=0;
-        }
-    });
 }
 
