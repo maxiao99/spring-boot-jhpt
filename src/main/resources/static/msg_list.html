@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <title></title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_table.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap_table.min.js"></script>
+    <script src="../js/bootstrap-datetimepicker.min.js"></script>
+    <script src="../js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div class="content">
+    <h4 class="sub-header">告警信息列表</h4>
+    <form class="form-horizontal mt10" role="form" id="msg_form">
+        <div class="form-group">
+            <div class="col-sm-1"><label class="tr wp100 control-label">车牌号：</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control" id="plate_no" placeholder="车牌号">
+            </div>
+            <div class="col-sm-1"><label class="tr wp100 control-label">开始时间</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control datetimepicker" id="start_date">
+            </div>
+            <div class="col-sm-1"><label class="tr wp100 control-label">结束时间</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control datetimepicker" id="end_date">
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-query">查询</button>
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-download">下载</button>
+            </div>
+        </div>
+    </form>
+    <div id="cur-status-container">
+        <div id="cur-status-box">
+            <table id="dyTable"></table>
+        </div>
+    </div>
+</div>
+
+<script>
+    var plate_no = $.trim($('#plate_no').val());
+    var start_date = $.trim($('#start_date').val());
+    var end_date = $.trim($('#end_date').val());
+    getList(plate_no, start_date, end_date);
+
+    $('.datetimepicker').datetimepicker({
+        language: 'zh-CN',
+        autoclose: true,
+        todayBtn: true,
+        format: 'yyyy-mm-dd hh:ii:ss',
+    });
+
+    $('#btn-query').click(function () {
+        var plate_no = $.trim($('#plate_no').val());
+        var start_date = $.trim($('#start_date').val());
+        var end_date = $.trim($('#end_date').val());
+        getList(plate_no, start_date, end_date);
+    });
+
+    $('#btn-download').click(function () {
+        var queryForm = $('#msg_form');
+        if (!queryForm.form("validate")) {
+            return;
+        }
+        var plateNo = $.trim($('#plate_no').val());
+        var startDate = $.trim($('#start_date').val());
+        var endDate = $.trim($('#end_date').val());
+        queryForm.form('submit', {
+            url: "device_info/download_msg",
+            onSubmit: function(param) {
+                param.plateNo = plateNo;
+                param.startDate = startDate;
+                param.endDate = endDate;
+            }
+        });
+    });
+
+    function getList(plate_no, start_date, end_date) {
+        $("#dyTable").bootstrapTable('destroy');
+        $('#dyTable').bootstrapTable({
+            url: 'device_info/page/msg_list',
+            method: 'GET',
+            cache: false,
+            pageNumber: 1,
+            pageSize: 10,
+            striped: true,
+            pagination: true,
+            dataType: 'json',
+            sortable: true,
+            sidePagination: "server",
+            pageList: [10, 25, 50, 100],
+            queryParams: function (params) {
+                return {
+                    limit: params.limit,
+                    currentPage: params.offset / 10 + 1,
+                    plateNo: plate_no,
+                    startDate: start_date,
+                    endDate: end_date,
+                };
+            },
+            responseHandler: function (res) {
+                if (res.status != 0) {
+                    $('#dyTable').html('<tr><td><p class="text-danger tc">参数错误</p></td></tr>');
+                    return;
+                }
+                $.each(res.data.rows, function (index, n) {
+                    if (/^\[alarm\]\s(zombie process,no keep alive msg for 60 seconds|down, server is inactive|down,pid not exist|activating,pid not exist)/gi.test(n.result)) {
+                        n.result = '<span class="text-danger">' + n.result + '</span>';
+                    }
+                });
+                return {
+                    total: res.data.total,
+                    rows: res.data.rows
+                }
+            },
+            columns: [{
+                field: 'plateNo',
+                title: '车牌号'
+            }, {
+                field: 'driverPersonId',
+                title: '驾驶员ID'
+            }, {
+                field: 'msgId',
+                title: '消息ID'
+            }, {
+                field: 'eventTime',
+                title: '采集时间'
+            }, {
+                field: 'uploadTime',
+                title: '上传时间'
+            }, {
+                field: 'latitude',
+                title: '纬度'
+            }, {
+                field: 'longitude',
+                title: '经度'
+            }, {
+                field: 'kmStr',
+                title: '里程'
+            }, {
+                field: 'speed',
+                title: '车速',
+                formatter: function (value, row, index) {
+                    return value + 'km/h';
+                }
+            }, {
+                field: 'accelerationStr',
+                title: '特征值'
+            }, {
+                field: 'msgType',
+                title: '告警类型',
+                formatter: msgTypeFormatter
+            }]
+        });
+    }
+
+    function msgTypeFormatter(value, row, index) {
+        if (value == 1) {
+            return '左车道偏离';
+        } else if (value == 2) {
+            return '右车道偏离';
+        } else if (value == 3) {
+            return '车距监测';
+        } else if (value == 4) {
+            return '限速警示';
+        } else if (value == 5) {
+            return '城市前碰撞';
+        } else if (value == 6) {
+            return '车辆前部碰撞';
+        } else if (value == 7) {
+            return '汽车启动';
+        } else if (value == 8) {
+            return '汽车熄火';
+        } else if (value == 9) {
+            return '定位信息';
+        } else if (value == 13) {
+            return '急加速';
+        } else if (value == 14) {
+            return '急减速';
+        } else if (value == 15) {
+            return 'VD未启动';
+        } else if (value == 16) {
+            return '设备已激活';
+        } else if (value == 17) {
+            return '行人前部碰撞';
+        } else if (value == 18) {
+            return '车辆碰撞跟踪';
+        } else if (value == 19) {
+            return '设备配置成功';
+        } else if (value == 20) {
+            return '设备配置失败';
+        } else if (value == 21) {
+            return '超速跟踪';
+        } else if (value == 22) {
+            return '超速警示';
+        } else if (value == 23) {
+            return '行人碰撞跟踪';
+        } else {
+            return '';
+        }
+    }
+</script>
+</body>
+</html>

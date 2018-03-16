@@ -117,7 +117,7 @@ public class UserInfoController extends AbstractController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/page/list", method = {RequestMethod.POST}, produces = {"application/json"})
+    @RequestMapping(value = "/page/list", method = {RequestMethod.GET}, produces = {"application/json"})
     @ApiOperation(value = "账户列表分页", notes = "入参格式：keyword=1&currentPage=1&limit=10")
     @ApiImplicitParam(name = "vo", value = "用户分页vo", required = true, dataType = "UserPageVo")
     public String list(UserPageVo vo) {

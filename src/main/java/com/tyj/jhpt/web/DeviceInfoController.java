@@ -7,6 +7,7 @@ package com.tyj.jhpt.web;
 import com.github.fartherp.framework.common.util.CsvUtil;
 import com.github.fartherp.framework.common.util.DateUtil;
 import com.github.fartherp.framework.core.util.JsonResp;
+import com.github.fartherp.framework.core.validate.ValidUtils;
 import com.tyj.jhpt.bo.Alarm;
 import com.tyj.jhpt.bo.AllCar;
 import com.tyj.jhpt.bo.DeviceGpsInfo;
@@ -38,6 +39,7 @@ import com.tyj.jhpt.service.RanliaoDianchiService;
 import com.tyj.jhpt.service.SupersService;
 import com.tyj.jhpt.service.WenduDetailService;
 import com.tyj.jhpt.service.WenduService;
+import com.tyj.jhpt.validate.EditGroup;
 import com.tyj.jhpt.vo.DeviceInfoPageVo;
 import com.tyj.jhpt.vo.DeviceInfoVo;
 import com.tyj.jhpt.vo.Merges;
@@ -50,6 +52,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -122,7 +125,7 @@ public class DeviceInfoController extends AbstractController {
     IShortMsgSender shortMessageSender;
 
     @ResponseBody
-    @RequestMapping(value = "/page/list", method = {RequestMethod.POST}, produces = {"application/json"})
+    @RequestMapping(value = "/page/list", method = {RequestMethod.GET}, produces = {"application/json"})
     @ApiOperation(value = "用户列表分页", notes = "入参格式：keyword=1&currentPage=1&limit=10")
     @ApiImplicitParam(name = "vo", value = "用户分页vo", required = true, dataType = "DeviceInfoPageVo")
     public String list(DeviceInfoPageVo vo) {
@@ -135,7 +138,9 @@ public class DeviceInfoController extends AbstractController {
     @RequestMapping(value = "/add_device_info", method = {RequestMethod.POST}, produces = {"application/json"})
     @ApiOperation(value = "添加设备", notes = "入参格式：{\"iccid\":\"13203\",\"terminalSeq\":\"123456\",\"carVin\":\"LRDS6PEB3HR002350\",\"terminalNo\":\"123456\",\"name\":\"张三\",\"age\":40,\"drivingLicense\":1,\"identityNo\":\"361083197409156638\",\"telephone\":\"18611715695\",\"plateNo\":\"粤B12350\",\"carType\":1}")
     @ApiImplicitParam(name = "vo", value = "设备vo", required = true, dataType = "DeviceInfoVo")
-    public String add(@Valid @RequestBody DeviceInfoVo vo) {
+    public String add(@Valid @RequestBody DeviceInfoVo vo, BindingResult error) {
+        ValidUtils.valid(vo, error);
+
         DeviceInfo deviceInfo = deviceInfoService.findByIdentityNo(vo.getIdentityNo());
         if (deviceInfo != null) {
             return JsonResp.asData().error("身份证号已存在,请重新添加").toJson();
@@ -151,7 +156,9 @@ public class DeviceInfoController extends AbstractController {
     @RequestMapping(value = "/edit_device_info", method = {RequestMethod.POST}, produces = {"application/json"})
     @ApiOperation(value = "编辑设备", notes = "入参格式：{\"id\":1,\"iccid\":\"13203\",\"terminalSeq\":\"123456\",\"carVin\":\"LRDS6PEB3HR002350\",\"terminalNo\":\"123456\",\"name\":\"张三\",\"age\":40,\"drivingLicense\":1,\"identityNo\":\"361083197409156638\",\"telephone\":\"18611715695\",\"plateNo\":\"粤B12350\",\"carType\":1}")
     @ApiImplicitParam(name = "vo", value = "设备vo", required = true, dataType = "DeviceInfoVo")
-    public String edit(@Valid @RequestBody DeviceInfoVo vo) {
+    public String edit(@Valid @RequestBody DeviceInfoVo vo, BindingResult error) {
+        ValidUtils.valid(vo, error, EditGroup.class);
+
         DeviceInfo deviceInfo = deviceInfoService.findByIdentityNo(vo.getIdentityNo());
         if (deviceInfo != null && !deviceInfo.getId().equals(vo.getId())) {
             return JsonResp.asData().error("身份证号已存在,请重新编辑").toJson();
@@ -200,9 +207,9 @@ public class DeviceInfoController extends AbstractController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/page/msg_list", method = {RequestMethod.POST}, produces = {"application/json"})
+    @RequestMapping(value = "/page/msg_list", method = {RequestMethod.GET}, produces = {"application/json"})
     @ApiOperation(value = "告警信息分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
-    @ApiImplicitParam(name = "vo", value = "用户分页vo", required = true, dataType = "UserPageVo")
+    @ApiImplicitParam(name = "vo", value = "告警信息分页vo", required = true, dataType = "UserPageVo")
     public String msgList(MsgPageVo vo) {
         List<DeviceGpsInfo> l = deviceGpsInfoService.findPageMsg(vo.convertPageMap());
         vo.setRows(l);

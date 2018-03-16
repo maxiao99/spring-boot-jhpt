@@ -28,7 +28,7 @@ var htmlMap = {
     "device_info/to_activate_list": "",
     "device_info/all_list": "",
     "device_info/config_list": "",
-    "device_info/msg_list": "",
+    "device_info/msg_list": "msg_list.html",
     "device_info/real_time": "",
     "user/user_list": "user_manage.html",
 }
