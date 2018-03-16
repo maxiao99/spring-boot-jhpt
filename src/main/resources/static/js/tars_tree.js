@@ -22,7 +22,7 @@ var AHREF_INDEX = 'tab_ahref_';
 var IFRAME_INDEX = 'tab_iframe_';
 
 var htmlMap = {
-    "device_info/device_info": "",
+    "device_info/device_info": "device_info_manage.html",
     "pay/customer_list": "",
     "pay/record_list": "",
     "device_info/to_activate_list": "",

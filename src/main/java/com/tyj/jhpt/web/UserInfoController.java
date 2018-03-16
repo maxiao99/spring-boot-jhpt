@@ -118,6 +118,8 @@ public class UserInfoController extends AbstractController {
 
     @ResponseBody
     @RequestMapping(value = "/page/list", method = {RequestMethod.POST}, produces = {"application/json"})
+    @ApiOperation(value = "账户列表分页", notes = "入参格式：keyword=1&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "用户分页vo", required = true, dataType = "UserPageVo")
     public String list(UserPageVo vo) {
         List<User> l = userService.findPageUser(vo.convertPageMap());
         vo.setRows(l);
@@ -162,7 +164,7 @@ public class UserInfoController extends AbstractController {
 
     @ResponseBody
     @RequestMapping(value = "/del_user", method = {RequestMethod.POST}, produces = {"application/json"})
-    @ApiOperation(value = "删除用户", notes = "入参格式：id:1")
+    @ApiOperation(value = "删除用户", notes = "入参格式：id=1")
     @ApiImplicitParam(name = "id", value = "用户id", required = true, dataType = "Long")
     public String delUser(@RequestParam Long id) {
         User user = new User();

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <title></title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_table.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_datepicker.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/template.js"></script>
+    <script src="../js/bootstrap_table.min.js"></script>
+    <script src="../js/bootstrap_datepicker.min.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div class="content">
+    <h4 class="sub-header">录入用户列表</h4>
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-1"><label class="tr wp100 control-label">关键字：</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control date" id="keyword-name" placeholder="姓名/车牌/微信号">
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-query" onclick="">查询</button>
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-add">新增</button>
+            </div>
+        </div>
+    </div>
+    <div id="cur-status-container">
+        <div id="cur-status-box">
+            <table id="dyTable"></table>
+        </div>
+    </div>
+</div>
+
+<div id="dlg-add-profile" style="display: none">
+    <input type="hidden" class="form-control" id="id" name="id">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-name" class="control-label wp100">姓名<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-name" placeholder="姓名" name="name">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-age" class="control-label wp100">年龄<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-age" placeholder="年龄" name="age">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-driving-license" class="control-label wp100">驾照类型<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <select class="form-control selectpicker" id="a-driving-license"></select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-identity-no" class="control-label wp100">身份证号<span
+                        class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-identity-no" placeholder="身份证号" name="identityNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-telephone" class="control-label wp100">手机号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-telephone" placeholder="手机号" name="telephone">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-plate-no" class="control-label wp100">车牌号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-plate-no" placeholder="车牌号" name="plateNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-car-type" class="control-label wp100">车型<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <select class="form-control selectpicker" id="a-car-type"></select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-iccid" class="control-label wp100">SIM卡ICCID号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-iccid" placeholder="SIM卡ICCID号" name="iccid">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-terminal-seq" class="control-label wp100">终端序列号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-terminal-seq" placeholder="终端序列号" name="terminalSeq">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-car-vin" class="control-label wp100">VIN<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-car-vin" placeholder="VIN" name="carVin">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-terminal-no" class="control-label wp100">车载终端编号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-terminal-no" placeholder="车载终端编号" name="terminalNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-dianji-no" class="control-label wp100">驱动电机型号</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-dianji-no" placeholder="驱动电机型号" name="dianjiNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-fadongji-no" class="control-label wp100">发动机编号</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-fadongji-no" placeholder="发动机编号" name="fadongjiNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="a-weixin-account" class="control-label wp100">微信账号</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="a-weixin-account" placeholder="微信账号" name="weixinAccount">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dlg-edit-profile" style="display: none">
+    <input type="hidden" class="form-control" id="e-id" name="id">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-name" class="control-label wp100">姓名<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-name" placeholder="姓名" name="name">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-age" class="control-label wp100">年龄<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-age" placeholder="年龄" name="age">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-driving-license" class="control-label wp100">驾照类型<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <select class="form-control selectpicker" id="e-driving-license"></select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-identity-no" class="control-label wp100">身份证号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-identity-no" placeholder="身份证号" name="identityNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-telephone" class="control-label wp100">手机号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-telephone" placeholder="手机号" name="telephone">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-plate-no" class="control-label wp100">车牌号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-plate-no" placeholder="车牌号" name="plateNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-car-type" class="control-label wp100">车型<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <select class="form-control selectpicker" id="e-car-type"></select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-iccid" class="control-label wp100">SIM卡ICCID号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-iccid" placeholder="SIM卡ICCID号" name="iccid">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-terminal-seq" class="control-label wp100">终端序列号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-terminal-seq" placeholder="终端序列号" name="terminalSeq">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-car-vin" class="control-label wp100">VIN<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-car-vin" placeholder="VIN" name="carVin">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-terminal-no" class="control-label wp100">车载终端编号<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-terminal-no" placeholder="车载终端编号" name="terminalNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-dianji-no" class="control-label wp100">驱动电机型号</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-dianji-no" placeholder="驱动电机型号" name="dianjiNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-fadongji-no" class="control-label wp100">发动机编号</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-fadongji-no" placeholder="发动机编号" name="fadongjiNo">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="e-weixin-account" class="control-label wp100">微信账号</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="e-weixin-account" placeholder="微信账号" name="weixinAccount">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dlg-ret" style="display:none;">
+
+</div>
+
+<script>
+    function getAddDrivingLicense(callback) {
+        $.ajax({
+            type: 'POST',
+            url: '/kv/hint',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                module: 2
+            })
+        }).done(function (resp) {
+            var htmlStr = "";
+            $.each(resp.data, function (i, n) {
+                htmlStr += "<option value='" + n.value + "'>" + n.text + "</option>";
+            });
+            callback(htmlStr);
+        });
+    }
+
+    function getAddCarType(callback) {
+        $.ajax({
+            type: 'POST',
+            url: '/kv/hint',
+            dateType: 'json',
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({
+                module: 3
+            })
+        }).done(function (resp) {
+            var htmlStr = "";
+            $.each(resp.data, function (i, n) {
+                htmlStr += "<option value='" + n.value + "'>" + n.text + "</option>";
+            });
+            callback(htmlStr);
+        });
+    }
+
+    var keyword = $.trim($('#keyword-name').val());
+    getList(keyword);
+
+    $('#btn-query').click(function () {
+        var keyword = $.trim($('#keyword-name').val());
+        getList(keyword);
+    });
+
+    $('#btn-add').click(function () {
+        var $box = $('#dlg-add-profile');
+        $box.find('#a-name').val('');
+        $box.find('#a-age').val('');
+        $box.find('#a-identity-no').val('');
+        $box.find('#a-telephone').val('');
+        $box.find('#a-plate-no').val('');
+        $box.find('#a-iccid').val('');
+        $box.find('#a-terminal-seq').val('');
+        $box.find('#a-car-vin').val('');
+        $box.find('#a-terminal-no').val('');
+        $box.find('#a-dianji-no').val('');
+        $box.find('#a-fadongji-no').val('');
+        $box.find('#a-weixin-account').val('');
+        getAddDrivingLicense(function (data) {
+            $box.find('#a-driving-license').html(data).val('');
+        });
+        getAddCarType(function (data) {
+            $box.find('#a-car-type').html(data).val('');
+        });
+
+        showDialog($box, '新增账户', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '确定': function () {
+                var paramObj = {
+                    name: $.trim($('#a-name').val()),
+                    age: $.trim($('#a-age').val()),
+                    drivingLicense: $.trim($('#a-driving-license').val()),
+                    identityNo: $.trim($('#a-identity-no').val()),
+                    telephone: $.trim($('#a-telephone').val()),
+                    plateNo: $.trim($('#a-plate-no').val()),
+                    carType: $.trim($('#a-car-type').val()),
+                    iccid: $.trim($('#a-iccid').val()),
+                    terminalSeq: $.trim($('#a-terminal-seq').val()),
+                    carVin: $.trim($('#a-car-vin').val()),
+                    terminalNo: $.trim($('#a-terminal-no').val()),
+                    dianjiNo: $.trim($('#a-dianji-no').val()),
+                    fadongjiNo: $.trim($('#a-fadongji-no').val()),
+                    weixinAccount: $.trim($('#a-weixin-account').val()),
+                };
+                var self = this;
+                closeErrorMsg();
+
+                if (!valid($box, paramObj)) {
+                    return;
+                }
+
+                showLoading();
+                $.ajax({
+                    type: 'POST',
+                    url: '/device_info/add_device_info',
+                    dateType: 'json',
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify(paramObj)
+                }).done(function (resp) {
+                    removeLoading();
+                    if (resp.status == 0) {
+                        self.modal('hide');
+                        $('#btn-query').click();
+                    } else {
+                        showErrorMsg($box, resp.statusInfo);
+                    }
+                });
+            }
+        }, 800);
+    });
+
+    function valid($box, paramObj) {
+        if (!paramObj.name) {
+            showErrorMsg($box, '请填写用户名');
+            return false;
+        }
+        if (!paramObj.age) {
+            showErrorMsg($box, '请填写年龄');
+            return false;
+        }
+        if (paramObj.age < 0 || paramObj.age > 150) {
+            showErrorMsg($box, '年龄不正确');
+            return false;
+        }
+        if (!paramObj.drivingLicense) {
+            showErrorMsg($box, '请填写驾照类型');
+            return false;
+        }
+        if (!paramObj.identityNo) {
+            showErrorMsg($box, '请填写身份证号');
+            return false;
+        }
+        if (!/^\d{18}(\d{2}[A-Za-z0-9])?$/g.test(paramObj.identityNo)) {
+            showErrorMsg($box, '身份证号码不正确');
+            return false;
+        }
+        if (!paramObj.telephone) {
+            showErrorMsg($box, '请填写手机号');
+            return false;
+        }
+        if (!/^(13|15|18)\d{9}$/g.test(paramObj.telephone)) {
+            showErrorMsg($box, '手机号码不正确');
+            return false;
+        }
+        if (!paramObj.plateNo) {
+            showErrorMsg($box, '请填写车牌号');
+            return false;
+        }
+        if (!/^[\u4E00-\u9FA5][\da-zA-Z]{6}$/g.test(paramObj.plateNo)) {
+            showErrorMsg($box, '车牌号码无效（例：粤B12350）');
+            return false;
+        }
+        if (!paramObj.carType) {
+            showErrorMsg($box, '请填写车型');
+            return false;
+        }
+        if (!paramObj.iccid) {
+            showErrorMsg($box, '请填写SIM卡ICCID号');
+            return false;
+        }
+        if (!paramObj.terminalSeq) {
+            showErrorMsg($box, '请填写终端序列号');
+            return false;
+        }
+        if (!paramObj.carVin) {
+            showErrorMsg($box, '请填写VIN');
+            return false;
+        }
+        if (!paramObj.terminalNo) {
+            showErrorMsg($box, '请填写车载终端编号');
+            return false;
+        }
+        return true;
+    }
+
+    function getList(keyword) {
+        $("#dyTable").bootstrapTable('destroy');
+        $('#dyTable').bootstrapTable({
+            url: 'device_info/page/list',
+            method: 'POST',
+            cache: false,
+            pageNumber: 1,
+            pageSize: 10,
+            striped: true,
+            pagination: true,
+            dataType: 'json',
+            sortable: true,
+            sidePagination: "server",
+            pageList: [10, 25, 50, 100],
+            queryParams: function (params) {
+                return {
+                    limit: params.limit,
+                    currentPage: params.offset / 10 + 1,
+                    keyword: keyword
+                };
+            },
+            responseHandler: function (res) {
+                if (res.status != 0) {
+                    $('#dyTable').html('<tr><td><p class="text-danger tc">参数错误</p></td></tr>');
+                    return;
+                }
+                $.each(res.data.rows, function (index, n) {
+                    if (/^\[alarm\]\s(zombie process,no keep alive msg for 60 seconds|down, server is inactive|down,pid not exist|activating,pid not exist)/gi.test(n.result)) {
+                        n.result = '<span class="text-danger">' + n.result + '</span>';
+                    }
+                });
+                return {
+                    total: res.data.total,
+                    rows: res.data.rows
+                }
+            },
+            columns: [{
+                field: 'name',
+                title: '姓名'
+            }, {
+                field: 'age',
+                title: '年龄'
+            }, {
+                field: 'drivingLicense',
+                title: '驾照类型'
+            }, {
+                field: 'carType',
+                title: '车型'
+            }, {
+                field: 'identityNo',
+                title: '身份证号'
+            }, {
+                field: 'iccid',
+                title: 'SIM卡ICCID号'
+            }, {
+                field: 'terminalSeq',
+                title: '终端序列号'
+            }, {
+                field: 'carVin',
+                title: 'VIN'
+            }, {
+                field: 'terminalNo',
+                title: '车载终端编号'
+            }, {
+                field: 'plateNo',
+                title: '车牌号'
+            }, {
+                field: 'weixinAccount',
+                title: '微信账号'
+            }, {
+                field: 'id',
+                title: '操作',
+                align: 'center',
+                valign: 'middle',
+                formatter: actionFormatter
+            }]
+        });
+    }
+
+    // 操作栏的格式化
+    function actionFormatter(value, row, index) {
+        var id = value;
+        var result = "";
+        result += "<a href='javascript:;' class='btn btn-xs green' onclick=\"viewById('" + id + "', view='view')\" title='查看'><span class='glyphicon glyphicon-search'></span></a>";
+        result += "<a href='javascript:;' class='btn btn-xs blue' onclick=\"editViewById('" + id + "')\" title='编辑'><span class='glyphicon glyphicon-pencil'></span></a>";
+        result += "<a href='javascript:;' class='btn btn-xs red' onclick=\"deleteById('" + id + "')\" title='删除'><span class='glyphicon glyphicon-remove'></span></a>";
+
+        return result;
+    }
+
+    function viewById(id) {
+        var $box = $('#dlg-edit-profile');
+        $.ajax({
+            type: 'POST',
+            url: '/device_info/get_device_info?id=' + id,
+        }).done(function (resp) {
+            if (resp.status == 0) {
+                $box.find('#e-name').val(resp.data.name);
+                $box.find('#e-name').attr("readonly", true);
+                $box.find('#e-age').val(resp.data.age);
+                $box.find('#e-age').attr("readonly", true);
+                $box.find('#e-identity-no').val(resp.data.identityNo);
+                $box.find('#e-identity-no').attr("readonly", true);
+                $box.find('#e-telephone').val(resp.data.telephone);
+                $box.find('#e-telephone').attr("readonly", true);
+                $box.find('#e-plate-no').val(resp.data.plateNo);
+                $box.find('#e-plate-no').attr("readonly", true);
+                $box.find('#e-iccid').val(resp.data.iccid);
+                $box.find('#e-iccid').attr("readonly", true);
+                $box.find('#e-terminal-seq').val(resp.data.terminalSeq);
+                $box.find('#e-terminal-seq').attr("readonly", true);
+                $box.find('#e-car-vin').val(resp.data.carVin);
+                $box.find('#e-car-vin').attr("readonly", true);
+                $box.find('#e-terminal-no').val(resp.data.terminalNo);
+                $box.find('#e-terminal-no').attr("readonly", true);
+                $box.find('#e-dianji-no').val(resp.data.dianjiNo);
+                $box.find('#e-dianji-no').attr("readonly", true);
+                $box.find('#e-fadongji-no').val(resp.data.fadongjiNo);
+                $box.find('#e-fadongji-no').attr("readonly", true);
+                $box.find('#e-weixin-account').val(resp.data.weixinAccount);
+                $box.find('#e-weixin-account').attr("readonly", true);
+                getAddDrivingLicense(function (data) {
+                    $box.find('#e-driving-license').html(data).val(resp.data.drivingLicense);
+                });
+                $box.find('#e-driving-license').attr("readonly", true);
+                getAddCarType(function (data) {
+                    $box.find('#e-car-type').html(data).val(resp.data.carType);
+                });
+                $box.find('#e-car-type').attr("readonly", true);
+            } else {
+                showErrorMsg($box, resp.statusInfo);
+            }
+            showDialog($box, '查看账户', {
+                '关闭': function () {
+                    this.modal('hide');
+                    $box.find('#e-name').attr("readonly", false);
+                    $box.find('#e-age').attr("readonly", false);
+                    $box.find('#e-driving-license').attr("readonly", false);
+                    $box.find('#e-identity-no').attr("readonly", false);
+                    $box.find('#e-telephone').attr("readonly", false);
+                    $box.find('#e-plate-no').attr("readonly", false);
+                    $box.find('#e-car-type').attr("readonly", false);
+                    $box.find('#e-iccid').attr("readonly", false);
+                    $box.find('#e-terminal-seq').attr("readonly", false);
+                    $box.find('#e-car-vin').attr("readonly", false);
+                    $box.find('#e-terminal-no').attr("readonly", false);
+                    $box.find('#e-dianji-no').attr("readonly", false);
+                    $box.find('#e-fadongji-no').attr("readonly", false);
+                    $box.find('#e-weixin-account').attr("readonly", false);
+                },
+            }, 600);
+        });
+    }
+
+    function editViewById(id) {
+        var self = this;
+        var $box = $('#dlg-edit-profile');
+        $.ajax({
+            type: 'POST',
+            url: '/device_info/get_device_info?id=' + id,
+        }).done(function (resp) {
+            if (resp.status == 0) {
+                $box.find('#e-id').val(resp.data.id);
+                $box.find('#e-name').val(resp.data.name);
+                $box.find('#e-name').attr("readonly", false);
+                $box.find('#e-age').val(resp.data.age);
+                $box.find('#e-age').attr("readonly", false);
+                $box.find('#e-identity-no').val(resp.data.identityNo);
+                $box.find('#e-identity-no').attr("readonly", false);
+                $box.find('#e-telephone').val(resp.data.telephone);
+                $box.find('#e-telephone').attr("readonly", false);
+                $box.find('#e-plate-no').val(resp.data.plateNo);
+                $box.find('#e-plate-no').attr("readonly", false);
+                $box.find('#e-iccid').val(resp.data.iccid);
+                $box.find('#e-iccid').attr("readonly", false);
+                $box.find('#e-terminal-seq').val(resp.data.terminalSeq);
+                $box.find('#e-terminal-seq').attr("readonly", false);
+                $box.find('#e-car-vin').val(resp.data.carVin);
+                $box.find('#e-car-vin').attr("readonly", false);
+                $box.find('#e-terminal-no').val(resp.data.terminalNo);
+                $box.find('#e-terminal-no').attr("readonly", false);
+                $box.find('#e-dianji-no').val(resp.data.dianjiNo);
+                $box.find('#e-dianji-no').attr("readonly", false);
+                $box.find('#e-fadongji-no').val(resp.data.fadongjiNo);
+                $box.find('#e-fadongji-no').attr("readonly", false);
+                $box.find('#e-weixin-account').val(resp.data.weixinAccount);
+                $box.find('#e-weixin-account').attr("readonly", false);
+
+                self.getAddDrivingLicense(function (data) {
+                    $box.find('#e-driving-license').html(data).val(resp.data.drivingLicense);
+                });
+                $box.find('#e-driving-license').attr("readonly", false);
+                self.getAddCarType(function (data) {
+                    $box.find('#e-car-type').html(data).val(resp.data.carType);
+                });
+                $box.find('#e-car-type').attr("readonly", false);
+            } else {
+                showErrorMsg($box, resp.statusInfo);
+            }
+        });
+
+        showDialog($box, '编辑账户', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '确定': function () {
+                var paramObj = {
+                    id: $.trim($('#e-id').val()),
+                    name: $.trim($('#e-name').val()),
+                    age: $.trim($('#e-age').val()),
+                    drivingLicense: $.trim($('#e-driving-license').val()),
+                    identityNo: $.trim($('#e-identity-no').val()),
+                    telephone: $.trim($('#e-telephone').val()),
+                    plateNo: $.trim($('#e-plate-no').val()),
+                    carType: $.trim($('#e-car-type').val()),
+                    iccid: $.trim($('#e-iccid').val()),
+                    terminalSeq: $.trim($('#e-terminal-seq').val()),
+                    carVin: $.trim($('#e-car-vin').val()),
+                    terminalNo: $.trim($('#e-terminal-no').val()),
+                    dianjiNo: $.trim($('#e-dianji-no').val()),
+                    fadongjiNo: $.trim($('#e-fadongji-no').val()),
+                    weixinAccount: $.trim($('#e-weixin-account').val()),
+                };
+                var self = this;
+                closeErrorMsg();
+
+                if (!valid($box, paramObj)) {
+                    return;
+                }
+
+                showLoading();
+                $.ajax({
+                    type: 'POST',
+                    url: '/device_info/edit_device_info',
+                    dateType: 'json',
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify(paramObj)
+                }).done(function (resp) {
+                    removeLoading();
+                    if (resp.status == 0) {
+                        self.modal('hide');
+                        $('#btn-query').click();
+                    } else {
+                        showErrorMsg($box, resp.statusInfo);
+                    }
+                });
+            }
+        }, 700);
+    }
+
+    function deleteById(id) {
+        var $box = $('#dlg-ret');
+        $box.html('您确定要删除这个账户吗？');
+        showDialog($box, '删除账户', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '删除': function () {
+                var self = this;
+                showLoading();
+                $.ajax({
+                    type: 'POST',
+                    url: '/device_info/del_device_info?id=' + id,
+                }).done(function (resp) {
+                    removeLoading();
+                    if (resp.status == 0) {
+                        self.modal('hide');
+                        $('#btn-query').click();
+                    } else {
+                        showErrorMsg($box, resp.statusInfo);
+                    }
+                });
+            }
+        }, 600, 50);
+    }
+</script>
+</body>
+</html>

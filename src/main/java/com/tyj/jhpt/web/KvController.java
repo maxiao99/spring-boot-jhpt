@@ -9,7 +9,9 @@ import com.github.fartherp.framework.core.kv.service.KvService;
 import com.github.fartherp.framework.core.kv.vo.KvVo;
 import com.github.fartherp.framework.core.util.JsonResp;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -29,9 +31,9 @@ public class KvController {
     @Resource
     KvService kvService;
 
-    @RequestMapping(value = "/hint")
+    @RequestMapping(value = "/hint", method = {RequestMethod.POST}, produces = {"application/json"})
     @ResponseBody
-    public String hint(KvVo vo) {
+    public String hint(@RequestBody KvVo vo) {
         KvHandlerSupport support = kvService.lookup(vo.getModule());
         if (!support.isExist()) {
             return JsonResp.asData().error("无此模块").toJson();
@@ -41,9 +43,9 @@ public class KvController {
         return JsonResp.asList().addAll(list).toJson();
     }
 
-    @RequestMapping(value = "/fuzzy")
+    @RequestMapping(value = "/fuzzy", method = {RequestMethod.POST}, produces = {"application/json"})
     @ResponseBody
-    public String fuzzy(KvVo vo) {
+    public String fuzzy(@RequestBody KvVo vo) {
         KvHandlerSupport support = kvService.lookup(vo.getModule());
         if (!support.isExist()) {
             return JsonResp.asData().error("无此模块").toJson();

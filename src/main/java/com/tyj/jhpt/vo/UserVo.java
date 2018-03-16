@@ -6,6 +6,7 @@ package com.tyj.jhpt.vo;
 
 import com.tyj.jhpt.validate.AddGroup;
 import com.tyj.jhpt.validate.EditGroup;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
@@ -30,9 +31,11 @@ public class UserVo {
     private String realName;
 
     @NotEmpty(message = "密码不能为空", groups = {AddGroup.class})
+    @Length(min = 6, max = 10, message = "密码长度在[6,10]之间", groups = {AddGroup.class})
     private String password;
 
     @NotEmpty(message = "确认密码不能为空", groups = {AddGroup.class})
+    @Length(min = 6, max = 10, message = "确认密码长度在[6,10]之间", groups = {AddGroup.class})
     private String confirmPassword;
 
     @NotNull(message = "权限ID不能为空")
