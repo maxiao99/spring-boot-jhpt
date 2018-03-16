@@ -30,19 +30,19 @@
 <body>
 <div class="content">
     <h4 class="sub-header">告警信息列表</h4>
-    <form class="form-horizontal mt10" role="form" id="msg_form">
+    <form class="form-horizontal mt10" role="form" id="msg_form" action="device_info/download_msg" method="post">
         <div class="form-group">
             <div class="col-sm-1"><label class="tr wp100 control-label">车牌号：</label></div>
             <div class="col-sm-2">
-                <input type="text" class="form-control" id="plate_no" placeholder="车牌号">
+                <input type="text" class="form-control" id="plate_no" placeholder="车牌号" name="plateNo">
             </div>
             <div class="col-sm-1"><label class="tr wp100 control-label">开始时间</label></div>
             <div class="col-sm-2">
-                <input type="text" class="form-control datetimepicker" id="start_date">
+                <input type="text" class="form-control datetimepicker" id="start_date" name="startDate">
             </div>
             <div class="col-sm-1"><label class="tr wp100 control-label">结束时间</label></div>
             <div class="col-sm-2">
-                <input type="text" class="form-control datetimepicker" id="end_date">
+                <input type="text" class="form-control datetimepicker" id="end_date" name="endDate">
             </div>
             <div class="col-sm-1">
                 <button type="button" class="btn btn-primary" id="btn-query">查询</button>
@@ -80,21 +80,7 @@
     });
 
     $('#btn-download').click(function () {
-        var queryForm = $('#msg_form');
-        if (!queryForm.form("validate")) {
-            return;
-        }
-        var plateNo = $.trim($('#plate_no').val());
-        var startDate = $.trim($('#start_date').val());
-        var endDate = $.trim($('#end_date').val());
-        queryForm.form('submit', {
-            url: "device_info/download_msg",
-            onSubmit: function(param) {
-                param.plateNo = plateNo;
-                param.startDate = startDate;
-                param.endDate = endDate;
-            }
-        });
+        $('#msg_form').submit();
     });
 
     function getList(plate_no, start_date, end_date) {

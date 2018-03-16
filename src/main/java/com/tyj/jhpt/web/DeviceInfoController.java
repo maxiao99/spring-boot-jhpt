@@ -487,12 +487,11 @@ public class DeviceInfoController extends AbstractController {
         return JsonResp.asData().error("没有选择发送的设备").toJson();
     }
 
-    /**
-     * 平台参数设置指令
-     */
     @ResponseBody
-    @RequestMapping(value = "/setting_config")
-    public String settingConfig(SettingConfigVo vo) {
+    @RequestMapping(value = "/setting_config", method = {RequestMethod.POST}, produces = {"application/json"})
+    @ApiOperation(value = "平台参数设置指令", notes = "入参格式：{\"id\":1,\"userName\":\"admin\",\"realName\":\"admin\",\"password\":\"admin\",\"confirmPassword\":\"admin\",\"authId\":1}")
+    @ApiImplicitParam(name = "vo", value = "平台参数设置vo", required = true, dataType = "SettingConfigVo")
+    public String settingConfig(@RequestBody SettingConfigVo vo) {
         String [] ds = vo.getIds().split(",");
         List<Long> list = new ArrayList<Long>();
         for (String d : ds) {

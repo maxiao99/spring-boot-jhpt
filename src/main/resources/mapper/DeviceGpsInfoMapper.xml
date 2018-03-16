@@ -55,7 +55,7 @@
         join `tb_device_info` b on a.`car_vin` = b.`car_vin`
         <where>
             <if test="plateNo != null and plateNo != ''">
-                AND b.`plate_no` = #{plateNo}
+                AND b.`plate_no` like CONCAT('%', #{plateNo}, '%')
             </if>
             <if test="startDate != null and startDate != ''">
                 AND a.`event_time` &gt;= #{startDate}
