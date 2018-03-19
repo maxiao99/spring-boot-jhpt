@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2018. CK. All rights reserved.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <title></title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap_table.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!--[if lt IE 9]>
+    <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap_table.min.js"></script>
+    <script src="../js/bootstrap-datetimepicker.min.js"></script>
+    <script src="../js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div class="content">
+    <h4 class="sub-header">车辆实时信息</h4>
+    <form class="form-horizontal mt10" role="form" id="msg_form" action="device_info/download_msg" method="post">
+        <div class="form-group">
+            <div class="col-sm-1"><label class="tr wp100 control-label">类型：</label></div>
+            <div class="col-sm-2">
+                <select class="form-control selectpicker" id="type" onchange="updateType()"></select>
+            </div>
+            <div class="col-sm-1"><label class="tr wp100 control-label">车牌号：</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control" id="plate_no" placeholder="车牌号" name="plateNo">
+            </div>
+            <div class="col-sm-1"><label class="tr wp100 control-label">开始时间</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control datetimepicker" id="start_date" name="startDate">
+            </div>
+            <div class="col-sm-1"><label class="tr wp100 control-label">结束时间</label></div>
+            <div class="col-sm-2">
+                <input type="text" class="form-control datetimepicker" id="end_date" name="endDate">
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-query">查询</button>
+            </div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="btn-download">下载</button>
+            </div>
+        </div>
+    </form>
+    <div id="cur-status-container">
+        <div id="cur-status-box">
+            <table id="dyTable"></table>
+        </div>
+    </div>
+</div>
+
+<script>
+    var type_data = [
+        {
+            text: "整车数据",
+            value: "device_info/page/all_car_list",
+            columns: [{
+                field: 'id',
+                title: 'ID',
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'carStatus',
+                title: '车辆状态',
+            }, {
+                field: 'changeStatus',
+                title: '充电状态',
+            }, {
+                field: 'runMode',
+                title: '运行模式',
+            }, {
+                field: 'speed',
+                title: '车速',
+            }, {
+                field: 'totalKm',
+                title: '累计里程',
+            }, {
+                field: 'totalVoltage',
+                title: '总电压',
+            }, {
+                field: 'totalElectricity',
+                title: '总电流',
+            }, {
+                field: 'soc',
+                title: 'SOC',
+            }, {
+                field: 'dcStatus',
+                title: 'DC-DC状态',
+            }, {
+                field: 'dangwei',
+                title: '挡位',
+            }, {
+                field: 'insulationResistance',
+                title: '绝缘电阻',
+            }, {
+                field: 'upFootplateKm',
+                title: '加速踏板行程值',
+            }, {
+                field: 'footplateStatus',
+                title: '制动踏板状态',
+            }]
+        }, {
+            text: "驱动电机数据",
+            value: "device_info/page/qudong_dianji_list",
+            columns: [{
+                field: 'id',
+                title: 'ID',
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'seq',
+                title: '驱动电机序号',
+            }, {
+                field: 'status',
+                title: '驱动电机状态',
+            }, {
+                field: 'controlTemperature',
+                title: '驱动电机控制器温度',
+            }, {
+                field: 'speed',
+                title: '驱动电机转速',
+            }, {
+                field: 'zhuanju',
+                title: '驱动电机转矩',
+            }, {
+                field: 'temperature',
+                title: '驱动电机温度',
+            }, {
+                field: 'dianya',
+                title: '电机控制器输入电压',
+            }, {
+                field: 'dianliu',
+                title: '电机控制器直流母线母线电流',
+            }]
+        }, {
+            text: "燃料电池数据",
+            value: "device_info/page/ranliao_dianchi_list",
+            columns: [{
+                field: 'id',
+                title: 'ID',
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'dianya',
+                title: '燃料电池电压',
+            }, {
+                field: 'dianliu',
+                title: '燃料电池电流',
+            }, {
+                field: 'xiaohaolv',
+                title: '燃料消耗率',
+            }, {
+                field: 'tanzhenTotal',
+                title: '燃料电池温度探针总数',
+            }, {
+                field: 'temperature',
+                title: '探针温度值',
+            }, {
+                field: 'maxTemperature',
+                title: '氢系统中最高温度',
+            }, {
+                field: 'maxTanzhenNo',
+                title: '氢系统中最高温度探针代号',
+            }, {
+                field: 'maxConcentration',
+                title: '氢气最高浓度',
+            }, {
+                field: 'maxConcentrationNo',
+                title: '氢气最高浓度传感器代号',
+            }, {
+                field: 'maxPressure',
+                title: '氢气最高压力',
+            }, {
+                field: 'maxPressureNo',
+                title: '氢气最高压力传感器代号',
+            }, {
+                field: 'dcStatus',
+                title: '高压DC/DC状态',
+            }]
+        }, {
+            text: "发动机数据",
+            value: "device_info/page/fadongji_list",
+            columns: [{
+                field: 'id',
+                title: 'ID',
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'status',
+                title: '发动机状态',
+            }, {
+                field: 'speed',
+                title: '曲轴转速',
+            }, {
+                field: 'xiaohaolv',
+                title: '燃料消耗率',
+            }]
+        }, {
+            text: "极值数据",
+            value: "device_info/page/supers_list",
+            columns: [{
+                field: 'id',
+                title: 'ID',
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'maxSystemNo',
+                title: '最高电压电池系统号',
+            }, {
+                field: 'maxSimpleNo',
+                title: '最高电压电池单体代号',
+            }, {
+                field: 'max',
+                title: '电池单体电压最高值',
+            }, {
+                field: 'mixSystemNo',
+                title: '最低电压电池系统号',
+            }, {
+                field: 'mixSimpleNo',
+                title: '最低电压电池单体代号',
+            }, {
+                field: 'min',
+                title: '电池单体电压最低值',
+            }, {
+                field: 'maxTemperatureSystemNo',
+                title: '最高温度子系统号',
+            }, {
+                field: 'maxSeq',
+                title: '最高温度探针序号',
+            }, {
+                field: 'maxTemperature',
+                title: '最高温度值',
+            }, {
+                field: 'minTemperatureSystemNo',
+                title: '最低温度子系统号',
+            }, {
+                field: 'minSeq',
+                title: '最低温度探针序号',
+            }, {
+                field: 'minTemperature',
+                title: '最低温度值',
+            }]
+        }, {
+            text: "报警数据",
+            value: "device_info/page/alarm_list",
+            columns: [{
+                field: 'id',
+                title: 'ID'
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'maxAlarmLevel',
+                title: '最高报警等级',
+            }, {
+                field: 'generalAlarm',
+                title: '通用报警标志',
+            }, {
+                field: 'n1',
+                title: '可充电储能装置故障总数N1',
+            }, {
+                field: 'bytes1',
+                title: '可充电储能装置故障代码列表',
+            }, {
+                field: 'n2',
+                title: '驱动电机故障总数N2',
+            }, {
+                field: 'bytes2',
+                title: '驱动电机故障代码列表',
+            }, {
+                field: 'n3',
+                title: '发动机故障总数N3',
+            }, {
+                field: 'bytes3',
+                title: '发动机故障列表',
+            }, {
+                field: 'n4',
+                title: '其他故障总数N4',
+            }, {
+                field: 'bytes4',
+                title: '其他故障代码列表',
+            }]
+        }, {
+            text: "可充电储能装置电压数据",
+            value: "device_info/page/dianya_list",
+            columns: [{
+                field: 'id',
+                title: 'ID'
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'systemNo',
+                title: '可充电储能子系统号',
+            }, {
+                field: 'dianya',
+                title: '可充电储能装置电压',
+            }, {
+                field: 'dianliu',
+                title: '可充电储能装置电流',
+            }, {
+                field: 'simpleTotal',
+                title: '单体电池总数',
+            }, {
+                field: 'seq',
+                title: '本帧起始电池序号',
+            }, {
+                field: 'ownSimpleTotal',
+                title: '本帧单体电池总数',
+            }, {
+                field: 'simpleTotals',
+                title: '单体电池电压',
+            }]
+        }, {
+            text: "可充电储能装置温度数据",
+            value: "device_info/page/wendu_list",
+            columns: [{
+                field: 'id',
+                title: 'ID'
+            }, {
+                field: 'plateNo',
+                title: '车牌号',
+            }, {
+                field: 'eventTime',
+                title: '检测时间',
+            }, {
+                field: 'systemNo',
+                title: '可充电储能子系统号',
+            }, {
+                field: 'count',
+                title: '可充电储能温度探针个数',
+            }, {
+                field: 'values',
+                title: '可充电储能子系统各温度探针监测到的温度值',
+            }]
+        }
+    ];
+
+    var htmlStr = "";
+    $.each(type_data, function (i, n) {
+        htmlStr += "<option value='" + n.value + "'>" + n.text + "</option>";
+    });
+    $("#type").empty();
+    $("#type").append(htmlStr);
+
+    $('.datetimepicker').datetimepicker({
+        language: 'zh-CN',
+        autoclose: true,
+        todayBtn: true,
+        format: 'yyyy-mm-dd hh:ii:ss',
+    });
+
+    $('#btn-query').click(function () {
+        var url = $.trim($('#type').val());
+        var plate_no = $.trim($('#plate_no').val());
+        var start_date = $.trim($('#start_date').val());
+        var end_date = $.trim($('#end_date').val());
+        getList(plate_no, start_date, end_date, url);
+    });
+
+    $('#btn-download').click(function () {
+        $('#msg_form').submit();
+    });
+
+    $('#btn-query').click();
+
+    function updateType() {
+        $('#btn-query').click();
+    }
+
+    function getList(plate_no, start_date, end_date, url) {
+        var showColumns = [];
+        for (var i = 0; i < type_data.length; i++) {
+            if (type_data[i].value == url) {
+                showColumns = type_data[i].columns;
+                break;
+            }
+        }
+        $('#dyTable').bootstrapTable('destroy');
+        $('#dyTable').bootstrapTable({
+            url: url,
+            method: 'GET',
+            cache: false,
+            pageNumber: 1,
+            pageSize: 10,
+            striped: true,
+            pagination: true,
+            dataType: 'json',
+            sortable: true,
+            sidePagination: "server",
+            pageList: [10, 25, 50, 100],
+            queryParams: function (params) {
+                return {
+                    limit: params.limit,
+                    currentPage: params.offset / 10 + 1,
+                    plateNo: plate_no,
+                    startDate: start_date,
+                    endDate: end_date,
+                };
+            },
+            responseHandler: function (res) {
+                if (res.status != 0) {
+                    $('#dyTable').html('<tr><td><p class="text-danger tc">参数错误</p></td></tr>');
+                    return;
+                }
+                $.each(res.data.rows, function (index, n) {
+                    if (/^\[alarm\]\s(zombie process,no keep alive msg for 60 seconds|down, server is inactive|down,pid not exist|activating,pid not exist)/gi.test(n.result)) {
+                        n.result = '<span class="text-danger">' + n.result + '</span>';
+                    }
+                });
+                return {
+                    total: res.data.total,
+                    rows: res.data.rows,
+                    merges: res.data.merges,
+                }
+            },
+            onLoadSuccess: onLoadSuccess,
+            columns: showColumns
+        });
+    }
+
+    function onLoadSuccess(data) {
+        var merges = data.merges || [];
+        for (var i = 0; i < merges.length; i++) {
+            $('#dyTable').bootstrapTable('mergeCells', {
+                index: merges[i].index,
+                field: 'id',
+                rowspan: merges[i].rowspan
+            });
+            $('#dyTable').bootstrapTable('mergeCells', {
+                index: merges[i].index,
+                field: 'plateNo',
+                rowspan: merges[i].rowspan
+            });
+            $('#dyTable').bootstrapTable('mergeCells', {
+                index: merges[i].index,
+                field: 'eventTime',
+                rowspan: merges[i].rowspan
+            });
+        }
+    }
+</script>
+</body>
+</html>

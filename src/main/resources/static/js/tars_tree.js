@@ -29,7 +29,7 @@ var htmlMap = {
     "device_info/all_list": "",
     "device_info/config_list": "",
     "device_info/msg_list": "msg_list.html",
-    "device_info/real_time": "",
+    "device_info/real_time": "real_time.html",
     "user/user_list": "user_manage.html",
 }
 

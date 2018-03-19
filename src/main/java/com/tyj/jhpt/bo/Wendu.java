@@ -8,16 +8,16 @@ package com.tyj.jhpt.bo;
  * This class corresponds to the database table `tb_wendu`
  */
 public class Wendu extends WenduBase {
-    private Byte systemNo;
+    private Integer systemNo;
     private Integer count;
     private byte[] values;
     private String plateNo;
 
-    public Byte getSystemNo() {
+    public Integer getSystemNo() {
         return systemNo;
     }
 
-    public void setSystemNo(Byte systemNo) {
+    public void setSystemNo(Integer systemNo) {
         this.systemNo = systemNo;
     }
 
