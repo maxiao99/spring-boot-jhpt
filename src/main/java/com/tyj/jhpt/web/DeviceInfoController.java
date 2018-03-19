@@ -250,22 +250,20 @@ public class DeviceInfoController extends AbstractController {
         CsvUtil.writeCsvFile(response, request, "设备数据", title, list);
     }
 
-    /**
-     * 整车数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/all_car_list")
+    @RequestMapping(value = "/page/all_car_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "整车数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "整车数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageAllCar(RealTimePageVo<AllCar> vo) {
         List<AllCar> l = allCarService.findPageAllCar(vo.convertPageMap());
         vo.setRows(l);
         return JsonResp.asData(vo).setDatePattern(DateUtil.yyyy_MM_dd_HH_mm_ss).toJson();
     }
 
-    /**
-     * 驱动电机数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/qudong_dianji_list")
+    @RequestMapping(value = "/page/qudong_dianji_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "驱动电机数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "驱动电机数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageQudongDianji(RealTimePageVo<QudongDianji> vo) {
         List<QudongDianji> list = new ArrayList<QudongDianji>();
         List<QudongDianji> l = qudongDianjiService.findPageQudongDianji(vo.convertPageMap());
@@ -312,55 +310,50 @@ public class DeviceInfoController extends AbstractController {
         return JsonResp.asData(vo).setDatePattern(DateUtil.yyyy_MM_dd_HH_mm_ss).toJson();
     }
 
-    /**
-     * 燃料电池数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/ranliao_dianchi_list")
+    @RequestMapping(value = "/page/ranliao_dianchi_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "燃料电池数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "燃料电池数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageRanliaoDianchi(RealTimePageVo<RanliaoDianchi> vo) {
         List<RanliaoDianchi> l = ranliaoDianchiService.findPageRanliaoDianchi(vo.convertPageMap());
         vo.setRows(l);
         return JsonResp.asData(vo).setDatePattern(DateUtil.yyyy_MM_dd_HH_mm_ss).toJson();
     }
 
-    /**
-     * 发动机数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/fadongji_list")
+    @RequestMapping(value = "/page/fadongji_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "发动机数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "发动机数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageFadongji(RealTimePageVo<Fadongji> vo) {
         List<Fadongji> l = fadongjiService.findPageFadongji(vo.convertPageMap());
         vo.setRows(l);
         return JsonResp.asData(vo).setDatePattern(DateUtil.yyyy_MM_dd_HH_mm_ss).toJson();
     }
 
-    /**
-     * 极值数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/supers_list")
+    @RequestMapping(value = "/page/supers_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "极值数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "极值数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageSupers(RealTimePageVo<Supers> vo) {
         List<Supers> l = supersService.findPageSupers(vo.convertPageMap());
         vo.setRows(l);
         return JsonResp.asData(vo).setDatePattern(DateUtil.yyyy_MM_dd_HH_mm_ss).toJson();
     }
 
-    /**
-     * 报警数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/alarm_list")
+    @RequestMapping(value = "/page/alarm_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "报警数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "报警数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageAlarm(RealTimePageVo<Alarm> vo) {
         List<Alarm> l = alarmService.findPageAlarm(vo.convertPageMap());
         vo.setRows(l);
         return JsonResp.asData(vo).setDatePattern(DateUtil.yyyy_MM_dd_HH_mm_ss).toJson();
     }
 
-    /**
-     * 可充电储能装置电压数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/dianya_list")
+    @RequestMapping(value = "/page/dianya_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "可充电储能装置电压数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "可充电储能装置电压数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageDianya(RealTimePageVo<Dianya> vo) {
         List<Dianya> list = new ArrayList<Dianya>();
         List<Dianya> l = dianyaService.findPageDianya(vo.convertPageMap());
@@ -407,11 +400,10 @@ public class DeviceInfoController extends AbstractController {
         return JsonResp.asData(vo).setDatePattern(DateUtil.yyyy_MM_dd_HH_mm_ss).toJson();
     }
 
-    /**
-     * 可充电储能装置温度数据列表
-     */
     @ResponseBody
-    @RequestMapping(value = "/page/wendu_list")
+    @RequestMapping(value = "/page/wendu_list", method = {RequestMethod.GET}, produces = {"application/json"})
+    @ApiOperation(value = "可充电储能装置温度数据列表分页", notes = "入参格式：plateNo=1&startDate=2018-10-10 10:10:10&endDate=2018-10-10 20:10:10&currentPage=1&limit=10")
+    @ApiImplicitParam(name = "vo", value = "可充电储能装置温度数据列表分页vo", required = true, dataType = "RealTimePageVo")
     public String findPageWendu(RealTimePageVo<Wendu> vo) {
         List<Wendu> list = new ArrayList<Wendu>();
         List<Wendu> l = wenduService.findPageWendu(vo.convertPageMap());
@@ -515,12 +507,11 @@ public class DeviceInfoController extends AbstractController {
         return JsonResp.asData().error("没有选择发送的设备").toJson();
     }
 
-    /**
-     * 平台车载终端控制指令
-     */
     @ResponseBody
-    @RequestMapping(value = "/terminal_config")
-    public String terminalConfig(TerminalConfigVo vo) {
+    @RequestMapping(value = "/terminal_config", method = {RequestMethod.POST}, produces = {"application/json"})
+    @ApiOperation(value = "平台车载终端控制指令", notes = "入参格式：{\"id\":1,\"userName\":\"admin\",\"realName\":\"admin\",\"password\":\"admin\",\"confirmPassword\":\"admin\",\"authId\":1}")
+    @ApiImplicitParam(name = "vo", value = "平台车载终端控制指令设置vo", required = true, dataType = "TerminalConfigVo")
+    public String terminalConfig(@RequestBody TerminalConfigVo vo) {
         String [] ds = vo.getIds().split(",");
         List<Long> list = new ArrayList<Long>();
         for (String d : ds) {

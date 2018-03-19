@@ -421,6 +421,115 @@
     </div>
 </div>
 
+<div id="dlg-terminal-command" style="display: none">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-ids" class="control-label wp100">批量配置设备</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-ids" name="ids" readonly="true">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-device-control" class="control-label wp100">设备控制<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-device-control" placeholder="设备控制" name="deviceControl">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-alarm-level" class="control-label wp100">车载终端报警/预警<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-alarm-level" placeholder="车载终端报警/预警" name="alarmLevel">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-bohao-name" class="control-label wp100">拨号点名称<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-bohao-name" placeholder="拨号点名称" name="bohaoName">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-bohao-account" class="control-label wp100">拨号用户名<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-bohao-account" placeholder="拨号用户名" name="bohaoAccount">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-bohao-password" class="control-label wp100">拨号密码<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-bohao-password" placeholder="拨号密码" name="bohaoPassword">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-address" class="control-label wp100">地址<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-address" placeholder="地址" name="address">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-port" class="control-label wp100">端口<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-port" placeholder="端口" name="port">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-car-terminal-product-id" class="control-label wp100">车载终端制造商ID<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-car-terminal-product-id" placeholder="车载终端制造商ID" name="carTerminalProductId">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-hardware-version" class="control-label wp100">硬件版本<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-hardware-version" placeholder="硬件版本" name="hardwareVersion">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-firmware-version" class="control-label wp100">固件版本<span class="text-danger">*</span></label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-firmware-version" placeholder="固件版本" name="firmwareVersion">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-upgrade-url-address" class="control-label wp100">升级URL地址</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-upgrade-url-address" placeholder="升级URL地址" name="upgradeUrlAddress">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">
+                <label for="tc-connect-upgrade-server-time" class="control-label wp100">连接到升级服务器时限</label>
+            </div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="tc-connect-upgrade-server-time" placeholder="连接到升级服务器时限" name="connectUpgradeServerTime">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="dlg-ret" style="display:none;">
 
 </div>
@@ -471,8 +580,19 @@
     });
 
     $('#btn-param-setting').click(function () {
+        closeErrorMsg();
+        var rows = $('#dyTable').bootstrapTable('getSelections');
+        if (rows.length <= 0) {
+            showErrorMsg($('body'), '请至少选择一个用户');
+            return;
+        }
+        var aIds = [];
+        rows.forEach(function (value, index, array) {
+            aIds.push(value.id);
+        });
+
         var $box = $('#dlg-param-setting');
-        $box.find('#a-ids').val(''); // TODO
+        $box.find('#a-ids').val(aIds.toString());
         $box.find('#a-local-store-cycle').val('');
         $box.find('#a-normal-upload-cycle').val('');
         $box.find('#a-alarm-upload-cycle').val('');
@@ -534,7 +654,73 @@
     });
 
     $('#btn-terminal-command').click(function () {
+        closeErrorMsg();
+        var rows = $('#dyTable').bootstrapTable('getSelections');
+        if (rows.length <= 0) {
+            showErrorMsg($('body'), '请至少选择一个用户');
+            return;
+        }
+        var aIds = [];
+        rows.forEach(function (value, index, array) {
+            aIds.push(value.id);
+        });
 
+        var $box = $('#dlg-terminal-command');
+        $box.find('#tc-ids').val(aIds.toString());
+        $box.find('#tc-device-control').val('');
+        $box.find('#tc-alarm-level').val('');
+        $box.find('#tc-bohao-name').val('');
+        $box.find('#tc-bohao-account').val('');
+        $box.find('#tc-bohao-password').val('');
+        $box.find('#tc-address').val('');
+        $box.find('#tc-port').val('');
+        $box.find('#tc-car-terminal-product-id').val('');
+        $box.find('#tc-hardware-version').val('');
+        $box.find('#tc-firmware-version').val('');
+        $box.find('#tc-upgrade-url-address').val('');
+        $box.find('#tc-connect-upgrade-server-time').val('');
+
+        showDialog($box, '核对信息', {
+            '取消': function () {
+                this.modal('hide');
+            },
+            '确定': function () {
+                var paramObj = {
+                    ids: $.trim($('#tc-ids').val()),
+                    deviceControl: $.trim($('#tc-device-control').val()),
+                    alarmLevel: $.trim($('#tc-alarm-level').val()),
+                    bohaoName: $.trim($('#tc-bohao-name').val()),
+                    bohaoAccount: $.trim($('#tc-bohao-account').val()),
+                    bohaoPassword: $.trim($('#tc-bohao-password').val()),
+                    address: $.trim($('#tc-address').val()),
+                    port: $.trim($('#tc-port').val()),
+                    carTerminalProductId: $.trim($('#tc-car-terminal-product-id').val()),
+                    hardwareVersion: $.trim($('#tc-hardware-version').val()),
+                    firmwareVersion: $.trim($('#tc-firmware-version').val()),
+                    upgradeUrlAddress: $.trim($('#tc-upgrade-url-address').val()),
+                    connectUpgradeServerTime: $.trim($('#tc-connect-upgrade-server-time').val()),
+                };
+                var self = this;
+                closeErrorMsg();
+
+                showLoading();
+                $.ajax({
+                    type: 'POST',
+                    url: '/device_info/terminal_config',
+                    dateType: 'json',
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify(paramObj)
+                }).done(function (resp) {
+                    removeLoading();
+                    if (resp.status == 0) {
+                        self.modal('hide');
+                        $('#btn-query').click();
+                    } else {
+                        showErrorMsg($box, resp.statusInfo);
+                    }
+                });
+            }
+        }, 800);
     });
 
     $('#btn-add').click(function () {
@@ -707,6 +893,9 @@
                 }
             },
             columns: [{
+                checkbox: true,
+                visible: true                  //是否显示复选框
+            }, {
                 field: 'name',
                 title: '姓名'
             }, {
